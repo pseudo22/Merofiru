@@ -1,6 +1,6 @@
 import { db } from "../utils/firebaseAdmin"
 
-class Friends{
+class Friend{
     constructor(userId , status){
         this.userId = userId
         this.status = status // accept or reject boolean

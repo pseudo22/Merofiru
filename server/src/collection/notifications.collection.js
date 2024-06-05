@@ -1,6 +1,6 @@
 import { db } from "../utils/firebaseAdmin"
 
-class Notifications{
+class Notification{
     constructor(userId , messageId){
         this.userId = userId
         this.messageId = messageId

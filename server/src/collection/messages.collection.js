@@ -1,6 +1,6 @@
 import { db } from "../utils/firebaseAdmin"
 
-class Messages{
+class Message{
     constructor(userId , seen){
         this.userId = userId
         this.seen = seen //boolean
