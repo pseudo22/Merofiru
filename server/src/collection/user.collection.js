@@ -1,20 +1,21 @@
+import { db } from "../utils/firebaseAdmin"
+
 class User {
     constructor(
         userId,
-        userName,
-        passWord,
+        displayName,
         email,
         profilePicture,
-        bio,
-        presence
+        bio = "",
+        presence = false
     ){
         this.userId = userId
-        this.userName = userName
-        this.passWord = passWord
+        this.displayName = displayName
         this.email = email
         this.profilePicture = profilePicture
         this.bio = bio
         this.presence = presence
+        this.userRef = db.collection('users').doc(userId)
     }
 }
 export {User}
