@@ -1,8 +1,14 @@
 import admin from 'firebase-admin'
 
 
+//environment variables
+import dotenv from 'dotenv'
+dotenv.config({
+    path : './.env'
+})
+
 //firebase initialization
-admin.initializeApp({
+const firebaseAdmin = admin.initializeApp({
     credential : admin.credential.cert({
         projectId : process.env.FIREBASE_PROJECT_ID,
         clientEmail : process.env.FIREBASE_CLIENT_EMAIL,
@@ -14,7 +20,7 @@ admin.initializeApp({
 const db = admin.firestore()
 
 
-export {db}
+export {db , firebaseAdmin}
 
 
 
