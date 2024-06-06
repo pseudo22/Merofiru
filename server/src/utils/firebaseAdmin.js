@@ -2,10 +2,10 @@ import admin from 'firebase-admin'
 
 
 //environment variables
-import dotenv from 'dotenv'
-dotenv.config({
-    path : './.env'
-})
+// import dotenv from 'dotenv'
+// dotenv.config({
+//     path : './.env'
+// }) 
 
 //firebase initialization
 const firebaseAdmin = admin.initializeApp({
