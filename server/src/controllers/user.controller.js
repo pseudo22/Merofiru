@@ -73,7 +73,7 @@ const loginUser = asyncHandler(async (req,res) => {
         const uid = decodedToken?.uid
 
 
-        const response = new ApiResponse(200, { uid, token: decodedToken }, 'Login successful');
+        const response = new ApiResponse(200, { uid, token: decodedToken }, 'Login successfull');
 
         res.status(response.statusCode).json(response);
         
