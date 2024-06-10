@@ -90,7 +90,7 @@ const logoutUser = asyncHandler(async (req,res) => {
     // judge logout
     const uid = req.user?.uid
     if (!uid) {
-        throw new ApiError(400 , 'invalid user trying to logout')
+        throw new ApiError(400 , 'invalid user trying to logout') // need to change http status codes
     }
     try {
         await firebaseAdmin.auth().revokeRefreshTokens(uid)
