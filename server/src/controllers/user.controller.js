@@ -78,7 +78,7 @@ const loginUser = asyncHandler(async (req,res) => {
         
     } catch (error) {
         console.log('error while authentication',error)
-        throw new ApiError(400 , 'authentication failed')
+        throw new ApiError(401 , 'authentication failed')
 
     }
 })
