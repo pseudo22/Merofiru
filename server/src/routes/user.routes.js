@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { loginUser, logoutUser, registerUser } from "../controllers/user.controller.js";
+import { loginUser, logoutUser, registerUser, updateUser } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { authenticate} from "../middlewares/auth.middleware.js";
 
@@ -13,6 +13,8 @@ router.route('/register').post(
 router.route('/login').post(loginUser)
 
 router.route('/logout').post(authenticate , logoutUser)
+
+router.route('/update').post(authenticate , upload.single('profilePicture') , updateUser)
 
 
 

@@ -6,105 +6,163 @@ import { db, firebaseAdmin } from "../utils/firebaseAdmin.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 
+
 // const userCollection = db.collection('users')
 
 const registerUser = asyncHandler(async (req, res) => {
-    //get user details from body
-    //validate - all fields filled
-    //check if user already exists in firestore
-    //check for images
-    //upload them to cloudinary
-    //check for user creation response(success or failure)
-    //return response
-    const {email, displayName, bio} = req?.body
-    
-    if (
-        [email,displayName].some((all) => all?.trim() === "")
-    ){
-        throw new ApiError(400 , "all fields are required")
-    }
-    if (!email.includes("@")){
-        throw new ApiError(400 , "invalid email")
-    }
-    const userExists = await db.collection('users').where('email' , '==' , email).get()
-    if (!userExists.empty){
-        throw new ApiError(400 , 'user already exists')
-    }
-    const pfpPath = req.file?.path
-    // console.log(pfpPath);
+    // Get user details from body
 
-    if (!pfpPath){
-        throw new ApiError(400 , 'profile picture required')
-    }
-    const pfpurl = await uploadOnCloudinary(pfpPath)
-    if (pfpurl == null){
-        throw new ApiError(500, 'error while uploading to server')
-    }
-    // console.log(pfpurl);
+    const { email, displayName, password, bio } = req?.body;
 
-    const userRef = await db.collection('users').add({
+    if ([email, displayName].some((all) => all?.trim() === "")) {
+        return res.status(400).json(new ApiError(400, '', "all fields are required"));
+    }
+
+    const oldUser = await db.collection('users').where('email', '==', email).get();
+
+    if (!oldUser.empty) { // Check if user already exists
+        return res.status(400).json(new ApiError(400, '', 'user or email already present'));
+    }
+
+    const pfpPath = req?.file?.path;
+
+    let pfpurl;
+    try {
+        pfpurl = await uploadOnCloudinary(pfpPath);
+    } catch (error) {
+        console.error("Error uploading to Cloudinary:", error);
+        return res.status(500).json(new ApiError(500, "", "error while uploading profile picture"));
+    }
+
+    let firebaseUser;
+    try {
+        firebaseUser = await firebaseAdmin.auth().createUser({
+            email, password, displayName
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json(new ApiError(500, '', 'error creating user in firebase auth'));
+    }
+
+    const userRef = await db.collection('users').doc(firebaseUser.uid).set({
         displayName,
         email,
-        profilePicture: pfpurl,
+        profilePicture: pfpurl || process.env.DEFAULT_PFP,
         bio,
-        presence: true
-    })
-    if (!userRef){
-        throw new ApiError(500 , 'something went wrong')
-    }
-    // console.log(email , displayName , pfpPath , userExists)
-    return res.status(200).json(
-        new ApiResponse(200 , 'user created successfully')
-    )
-    
-})
+        presence: true,
+        similarUsers: []
+    });
 
-const loginUser = asyncHandler(async (req,res) => {
-    //take token from req.user 
-    //check token came or not from frontend
-    //decode the token
-    //send the message for success or failure
-    const {token} = req.body
-    if (!token){
-        throw new ApiError(400 , 'token is required')
+    if (!userRef) {
+        return res.status(500).json(new ApiError(500, '', 'something went wrong'));
     }
+
+    const newUser = await db.collection('users').doc(firebaseUser.uid).get()
+
+
+    return res.status(200).json(new ApiResponse(200, { user: newUser }, 'user created successfully'));
+});
+
+
+
+const loginUser = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json(new ApiError(400, '', 'Email is required'));
+    }
+
     try {
-        const decodedToken = await firebaseAdmin.auth().verifyIdToken(token)
-        const uid = decodedToken?.uid
+        const userEmail = await firebaseAdmin.auth().getUserByEmail(email).then((res) => res.email).catch((err) => {
+            console.error("Error fetching user by email:", err);
+            return null;
+        });
 
-        const response = new ApiResponse(200, { uid, token: decodedToken }, 'Login successfull');
+        if (!userEmail) {
+            return res.status(404).json(new ApiError(404, '', 'User not found'));
+        }
 
-        res.status(response.statusCode).json(response);
-        
+        db.collection('users').where('email', '==', userEmail).get()
+            .then((querySnapshot) => {
+                if (querySnapshot.empty) {
+                    return res.status(404).json(new ApiError(404, '', 'User not found'));
+                }
+
+                const user = querySnapshot.docs[0].data();
+                return res.status(200).json(new ApiResponse(200, { userId: querySnapshot.docs[0].id }, 'Login successful'));
+            })
+            .catch((err) => {
+                console.error('Error querying database:', err);
+                return res.status(500).json(new ApiError(500, '', 'Error while fetching user data'));
+            });
+
     } catch (error) {
-        console.log('error while authentication',error)
-        throw new ApiError(401 , 'authentication failed')
-
+        console.log('Error during authentication', error);
+        return res.status(401).json(new ApiError(401, '', 'Authentication failed'));
     }
-})
+});
 
-const logoutUser = asyncHandler(async (req,res) => {
-    // get user uid
-    // autheticate the token with the help of auth middleware
-    // judge logout
-    const uid = req.user?.uid
+
+const logoutUser = asyncHandler(async (req, res) => {
+    const uid = req.user?.uid;
+
     if (!uid) {
-        throw new ApiError(401 , 'invalid user trying to logout')
+        return res.status(401).json(new ApiError(401, '', 'invalid user trying to logout'));
     }
+
     try {
-        await firebaseAdmin.auth().revokeRefreshTokens(uid)
-        res.status(200).json(
-            new ApiResponse(200 , 'logout success')
-        )
-        
+        await firebaseAdmin.auth().revokeRefreshTokens(uid);
+        return res.status(200).json(new ApiResponse(200, '', 'logout success'));
     } catch (error) {
-        console.log('error is',error)
-        throw new ApiError(500 , 'error while logging out')
+        console.log('error is', error);
+        return res.status(500).json(new ApiError(500, '', 'error while logging out'));
     }
-})
+});
 
+const updateUser = asyncHandler(async (req, res) => {
+    const { bio, userId } = req.body
+  
+    if (!userId) {
+      return res.status(400).json(new ApiResponse(400, '', 'User ID is required'));
+    }
+  
+    try {
+      const userDoc = await db.collection('users').doc(userId).get();
+  
+      if (!userDoc.exists) {
+        return res.status(404).json(new ApiResponse(404, '', 'User not found'));
+      }
+  
+      let pfpurl = userDoc.data().profilePicture; 
+  
+      if (req.file) {
+        try {
+          pfpurl = await uploadOnCloudinary(req.file.path); 
+        } catch (error) {
+          console.error("Error uploading to Cloudinary:", error);
+          return res.status(500).json(new ApiResponse(500, "", "Error while uploading profile picture"));
+        }
+      }
 
-export {registerUser,
+      if (bio && bio.trim() !== userDoc.data().bio.trim()) {
+        await userDoc.ref.update({ bio }); 
+      }
+  
+      if (pfpurl !== userDoc.data().profilePicture) {
+        await userDoc.ref.update({ profilePicture: pfpurl }); 
+      }
+  
+      return res.status(200).json(new ApiResponse(200, '', 'User updated successfully'));
+  
+    } catch (error) {
+      console.error('Error updating user:', error);
+      return res.status(500).json(new ApiResponse(500, '', 'Something went wrong'));
+    }
+  });
+
+export {
+    registerUser,
     loginUser,
-    logoutUser
+    logoutUser,
+    updateUser
 }
