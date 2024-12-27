@@ -119,6 +119,12 @@ dist
 # Serverless directories
 .serverless/
 
+
+# firebase base files
+genre.js
+todo.txt
+server/src/assets/genres.json
+
 # FuseBox cache
 .fusebox/
 
