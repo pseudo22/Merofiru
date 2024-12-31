@@ -99,10 +99,12 @@ export default function Chat() {
           });
 
           return () => {
-            socketConnection.off('receive-message');
-            socketConnection.off('update-seen');
-            socketConnection.off('typing');
-            socketConnection.disconnect();
+            if (socketConnection) {
+              socketConnection.off('receive-message');
+              socketConnection.off('update-seen');
+              socketConnection.off('typing');
+              socketConnection.disconnect();
+            }
           };
         }
       }
@@ -134,6 +136,7 @@ export default function Chat() {
 
   const handleBack = () => {
     navigate('/chat');
+    window.reload()
   };
 
   const getMessageBackground = (message) => {
@@ -150,6 +153,13 @@ export default function Chat() {
       return 'bg-[#9e978177]';
     }
     return 'bg-[#9e978177]';
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) { // 'Enter' key without 'Shift' for new line
+      event.preventDefault(); // Prevent new line on Enter
+      handleSendMessage(); // Send the message
+    }
   };
 
   if (isLoading || !socket) {
@@ -207,8 +217,6 @@ export default function Chat() {
       </div>
 
 
-
-
       <div className="flex flex-col justify-end">
         {isTyping && 'vocalizing...'}
       </div>
@@ -221,16 +229,15 @@ export default function Chat() {
           placeholder="type some melodies?"
           type="text"
           className="w-full py-2"
-          onKeyDown={handleTyping}
+          onKeyDown={handleKeyDown} // Handle 'Enter' key press
         />
         <button
-          onClick={handleSendMessage}
+          onClick={handleSendMessage} // Send message on button click
           className="flex justify-center bg-[#5cc6abeb] text-white items-center px-6 py-2 rounded-lg transition-all"
         >
-          sing
+          Sing
         </button>
       </div>
     </div>
   );
-
 }
