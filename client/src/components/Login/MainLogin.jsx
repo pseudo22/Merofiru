@@ -28,11 +28,11 @@ const LoginPage = () => {
       })
     
 
-      toast.success(response?.data.message)
+      toastRef.current.addToast(response?.data.message)
       navigate('/homepage')
 
     } catch (error) {
-      toast.error(error.response?.data.errors)
+      toastRef.current.addToast(error.response?.data.errors)
     }
   };
 

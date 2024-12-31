@@ -74,7 +74,7 @@ const updateGenre = asyncHandler(async (req, res) => {
 
 
 
-const findSimilarUsers = asyncHandler(async (req, res) => {
+const findTopMatches = asyncHandler(async (req, res) => {
 
     const { userId } = req.body
 
@@ -137,14 +137,15 @@ const findSimilarUsers = asyncHandler(async (req, res) => {
 
             return {
                 userId: otherUserId,
+                userName : otherUserDoc?.data()?.displayName,
                 similarity: similarity.toFixed(2),
             }
         }))
         
-        similarityScore.sort((a, b) => b.similarity - a.similarity).slice(0, 5)
-
+        similarityScore.sort((a, b) => b.similarity - a.similarity).slice(0, 5)        
         const batch = db.batch()
-        batch.set(userRef, { similarUsers: similarityScore } , {merge : true})
+
+        batch.set(userRef, { topMatches: similarityScore } , {merge : true})
         await batch.commit()
 
         return res.status(200).json(new ApiResponse(200, similarityScore, 'similar users fetched successfully'))
@@ -160,4 +161,4 @@ const findSimilarUsers = asyncHandler(async (req, res) => {
 
 
 
-export { updateGenre, findSimilarUsers }
+export { updateGenre, findTopMatches }

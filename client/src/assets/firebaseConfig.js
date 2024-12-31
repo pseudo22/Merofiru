@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import {  browserLocalPersistence, browserSessionPersistence, getAuth} from 'firebase/auth';
+import {  browserSessionPersistence, getAuth} from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -16,9 +16,9 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firebase services
 const auth = getAuth(app);
 
-auth.setPersistence(browserLocalPersistence)
+auth.setPersistence(browserSessionPersistence)
   .then(() => {
-    console.log('persistence set to browserLocalPersistence');
+    console.log('persistence set to browserSessionPersistence');
   })
   .catch((err) => {
     console.error('error setting persistence:', err.message);
@@ -41,6 +41,7 @@ const getToken = async () => {
           console.log('error fetching token');
       }
   }
+  return null
 }
 
 

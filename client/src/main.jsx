@@ -15,6 +15,7 @@ import GenreMatch from './components/Genres/GenreMatch.jsx';
 import Chat from './components/Chat/Chat.jsx';
 import HomePage from './components/Home/Homepage.jsx';
 import ProfileSection from './components/Profile/ProfileSection.jsx';
+import ChatList from './components/Chat/ChatList.jsx';
 
 
 const router = createBrowserRouter([
@@ -22,7 +23,7 @@ const router = createBrowserRouter([
     path : '/',
     element :(
       <Layout>
-        <App/>
+        <HomePage/>
       </Layout>
     )
   },
@@ -74,7 +75,16 @@ const router = createBrowserRouter([
     )
   },
   {
-    path : '/user/chat/:id',
+
+    path : '/chat',
+    element : (
+      <Layout>
+        <ChatList/>
+      </Layout>
+    )
+  },
+  {
+    path : '/chat/:id',
     element : (
       <Layout>
         <Chat/>
@@ -92,9 +102,7 @@ const router = createBrowserRouter([
 ])
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
     <Provider store={store}>
     <RouterProvider router={router} />
     </Provider>
-  </StrictMode>,
 )

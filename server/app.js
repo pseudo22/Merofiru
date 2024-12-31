@@ -35,11 +35,15 @@ app.use('/api/user', userRouter)
 
 import genreRouter from './src/routes/genre.routes.js'
 
-
 //genre routes
 app.use('/api/genre', genreRouter)
 
 
+import chatRouter from './src/routes/chat.routes.js'
+
+// chat routes
+
+app.use('/api/messages' , chatRouter)
 
 
 

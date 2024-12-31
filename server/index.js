@@ -8,34 +8,16 @@ dotenv.config({
 })
 
 
+
 import http from 'http'
-import { Server } from 'socket.io'
-import { ApiError } from "./src/utils/ApiError.js";
-import { authenticateSocket } from "./src/middlewares/auth.middleware.js";
-
-
-// socket 
-
 const server = http.createServer(app)
-const io = new Server(server , {
-  cors:{
-    origin: process.env.CORS_ORIGIN,
-    methods : ['GET' , 'POST'],
-    credentials: true
-  }
-})
 
 
-io.use(authenticateSocket)
 
+// socket
+import { setupSocket } from "./src/sockets/socket.js";
 
-io.on('connection', (socket) => {
-    console.log(`user connected with socket` , socket.id);
-  
-    socket.on('disconnect', () => {
-        console.log('User disconnected');
-    });
-  });
+const io = setupSocket(server)
 
 
 //app start

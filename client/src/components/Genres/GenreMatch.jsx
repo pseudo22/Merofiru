@@ -1,48 +1,66 @@
 import { useRef, useState } from "react"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { ApiClient } from "../../assets/axios.js"
 import { db } from "../../assets/firebaseConfig.js"
-import { doc, getDoc } from 'firebase/firestore';
+import {  doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from "react-router-dom";
 import ToastContainer from "../Toast/ToastContainer.jsx";
+import { setTopMatches } from "../../features/topMatchesSlice.js";
+
+
 
 export default function GenreMatch() {
 
     const [compatiblePeople, setCompatiblePeople] = useState([])
     const [loading, setLoading] = useState(false)
     const userId = useSelector((state) => state.user.userId)
+    const dispatch = useDispatch()
 
     const navigate = useNavigate()
     const toastRef = useRef()
 
-    async function fetchSimilarGenre() {
+    async function fetchSimilarGenreUser() {
         setLoading(true)
         try {
-            const response = await ApiClient.post('/api/genre//fetch-similar', { userId: userId })
+            const currentUserRef = doc(db , 'users' , userId)            
+            const currentUserSnap = await getDoc(currentUserRef)
+            
+            if (currentUserSnap?.exists()) {
 
-            const responseData = response?.data.data
-            const userDetails = await Promise.all(
-                responseData?.map(async (user) => {
-                    const userRef = doc(db, 'users', user.userId)
-                    const userSnap = await getDoc(userRef)
+                const similarUser = currentUserSnap?.data()?.topMatches || 0
+                if (similarUser.length > 5) {
+                    toastRef.current.addToast('can have atmost 5 top matches-')
+                    return
+                }
+                else {
+                    const response = await ApiClient.post('/api/genre/fetch-similar', { userId: userId })
 
-                    if (userSnap.exists()) {
-                        return {
-                            userId: user.userId,
-                            userName: userSnap.data().displayName,
-                            profilePicture: userSnap.data().profilePicture,
-                            similarity: user.similarity
-                        }
+                    const responseData = response?.data?.data
+                    const userDetails = await Promise.all(
+                        responseData?.map(async (user) => {
+                            const userRef = doc(db, 'users', user.userId)
+                            const userSnap = await getDoc(userRef)
 
-                    }
-                })
-            )
-            setCompatiblePeople(userDetails)
-            toastRef.current.addToast('melophiles for you')
+                            if (userSnap.exists()) {
+                                return {
+                                    userId: user.userId,
+                                    userName: userSnap.data().displayName,
+                                    profilePicture: userSnap.data().profilePicture,
+                                    similarity: user.similarity
+                                }
 
+                            }
+                        })
+                    )
+                    setCompatiblePeople(userDetails)
+                    dispatch(setTopMatches(compatiblePeople))
+                    toastRef.current.addToast('merofiru for you')
+                }
+            }
         } catch (error) {
+            console.log(error);
+            
             toastRef.current.addToast('errorr')
-
             console.log('error while matching');
 
         } finally {
@@ -50,7 +68,7 @@ export default function GenreMatch() {
         }
     }
 
-    function goChat(userId){
+    function goChat(userId) {
         navigate(`/user/chat/${userId}`)
     }
 
@@ -59,7 +77,7 @@ export default function GenreMatch() {
         <>
             <ToastContainer ref={toastRef} />
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mx-2 items-center gap-y-4 p-4 flex flex-col rounded-lg bg-[#CCD0CF] shadow-lg md:w-96 w-full h-auto">
-                <button disabled={loading} className="text-[#289177] py-2 px-4 rounded-lg  w-full mt-4 transition-all" onClick={fetchSimilarGenre}>
+                <button disabled={loading} className="text-[#289177] py-2 px-4 rounded-lg  w-full mt-4 transition-all" onClick={fetchSimilarGenreUser}>
                     {loading ? (
                         <p>take deep breaths</p>
                     ) : (
@@ -79,10 +97,10 @@ export default function GenreMatch() {
                                     />
                                     <div>
                                         <h3 className="font-semibold">{person.userName}</h3>
-                                        <p>{person.similarity}% compatibility</p>
+                                        <p>is <span className="text-2xl">{person.similarity} % </span>merophical as you </p>
                                     </div>
                                 </div>
-                                <button onClick={()=>goChat(person.userId)} className=" px-4 py-2 rounded-lg">Chat</button>
+                                <button onClick={() => goChat(person.userId)} className=" px-4 py-2 rounded-lg">Chat</button>
                             </div>
                         ))}
                     </div>

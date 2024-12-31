@@ -36,7 +36,7 @@ export default function HomePage() {
     }, [])
 
     return (
-        <div className='absolute flex flex-col gap-y-4 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-lg bg-[#CCD0CF] shadow-lg md:w-[50%] w-full h-auto'>
+        <div className='absolute flex flex-col gap-y-4 top-1/2 left-1/2 transform -translate-x-1/2 p-2 -translate-y-1/2 rounded-lg bg-[#CCD0CF] shadow-lg md:w-[50%] w-full h-auto'>
             {topGenre && 
             (
                 <div className="top-genre-details w-96">
@@ -48,11 +48,11 @@ export default function HomePage() {
             )}
 
             <div className="list mt-6">
-                <h3 className="text-xl text-[#4c8779] font-semibold">town is filled with melophiles from every corner</h3>
+                <h3 className="text-xl text-[#4c8779] font-semibold">town is filled with merofiru from every corner</h3>
                 <ul className="list-decimal pl-4">
                     {topGenresList.map((genre, index) => (
                         <li key={index} className="mt-2">
-                            <b>{genre.genreName}</b> is loved by {genre.userCount} melophiles
+                            <b>{genre.genreName}</b> is loved by {genre.userCount} merofiru
                         </li>
                     ))}
                 </ul>
@@ -62,4 +62,4 @@ export default function HomePage() {
 }
 
 
-// TODO: complete chat today anyhow, figure the way to enable voice messaages
+// TODO: complete chat today anyhow, figure out the way to enable voice messaages

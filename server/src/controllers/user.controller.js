@@ -49,8 +49,7 @@ const registerUser = asyncHandler(async (req, res) => {
         email,
         profilePicture: pfpurl || process.env.DEFAULT_PFP,
         bio,
-        presence: true,
-        similarUsers: []
+        topMatches: []
     });
 
     if (!userRef) {
@@ -89,6 +88,7 @@ const loginUser = asyncHandler(async (req, res) => {
                 }
 
                 const user = querySnapshot.docs[0].data();
+            
                 return res.status(200).json(new ApiResponse(200, { userId: querySnapshot.docs[0].id }, 'Login successful'));
             })
             .catch((err) => {

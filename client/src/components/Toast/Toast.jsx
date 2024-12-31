@@ -10,7 +10,7 @@ const Toast = ({ message, type, onClose }) => {
   }, [onClose]);
 
   return (
-    <div className={`flex items-center justify-between p-4 mb-2 rounded-md text-white shadow-md bg-[#258970eb] `}>
+    <div className={`flex items-center justify-between p-4 mb-2 rounded-md text-black shadow-md`}>
       <p>{message}</p>
       <button onClick={onClose} className="ml-4 text-xl focus:outline-none">&times;</button>
     </div>
