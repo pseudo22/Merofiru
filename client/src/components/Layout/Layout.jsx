@@ -31,7 +31,7 @@ export default function Layout({ children }) {
     }
 
     function navigateToChat() {
-        navigate('/chat')
+        navigate('/chatlist')
     }
     function navigateToProfile() {
         navigate('/user/settings')
@@ -98,7 +98,7 @@ export default function Layout({ children }) {
                 hello {userName}
             </div>
 
-            
+
         </>
 
     );

@@ -140,7 +140,7 @@ export default function Chat() {
   };
 
   const handleBack = () => {
-    navigate('/chat')
+    navigate('/chatlist')
   };
 
   const getMessageBackground = (message) => {

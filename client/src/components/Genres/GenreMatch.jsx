@@ -66,7 +66,7 @@ export default function GenreMatch() {
     }
 
     function goChat(userId) {
-        navigate(`/user/chat/${userId}`)
+        navigate(`/chat/${userId}`)
     }
 
 
