@@ -5,7 +5,7 @@ export default function Error() {
 
     const naviagte = useNavigate()
     function goBack() {
-        naviagte('/')
+        naviagte('/homepage')
     }
 
     return (

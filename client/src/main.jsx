@@ -17,22 +17,21 @@ import ProfileSection from './components/Profile/ProfileSection.jsx';
 import ChatList from './components/Chat/ChatList.jsx';
 import ProfileSetting from './components/Profile/ProfileSetting.jsx';
 import Error from './components/Error/Error.jsx';
+import LoginPage from './components/Login/MainLogin.jsx';
 
 
 const router = createBrowserRouter([
   {
     path : '/',
     element :(
-      <Layout>
-        <HomePage/>
-      </Layout>
+        <LoginPage/>
     ),
     errorElement : <Error/>
   },
   {
     path :'/login',
     element :(
-        <App/>
+      <LoginPage/>
     ),
     errorElement : <Error/>
   },
