@@ -24,7 +24,8 @@ export default function Chat() {
   const navigate = useNavigate();
   const encryptedUserId = params.id;
 
-  const receiverId = CrptoJS.AES.decrypt(encryptedUserId, import.meta.env.VITE_SECRET_KEY).toString(CrptoJS.enc.Utf8);
+  const base64String = encryptedUserId.replace(/-/g, '+').replace(/_/g, '/')
+  const receiverId = CrptoJS.AES.decrypt(base64String, import.meta.env.VITE_SECRET_KEY).toString(CrptoJS.enc.Utf8);
 
   const token = useSelector((state) => state.user.token);
   const userId = useSelector((state) => state.user.userId);

@@ -78,8 +78,9 @@ export default function ChatList() {
             
     }
             const encryptedUserId =  CryptoJS.AES.encrypt(otherUserId, import.meta.env.VITE_SECRET_KEY).toString()
+            const urlSafeEncryptedUserId = encryptedUserId.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 
-            navigate(`/chat/${encryptedUserId}`);
+            navigate(`/chat/${urlSafeEncryptedUserId}`);
     }
 
     function openProfile(otherUserName) {
