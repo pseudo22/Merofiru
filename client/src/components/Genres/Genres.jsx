@@ -55,7 +55,7 @@ function Genres() {
 
         try {
             const response = await ApiClient.post('/api/genre/update', {
-                userId,
+                userId: userId,
                 selectedGenres:localSelectedGenres,
             });
 
@@ -66,7 +66,7 @@ function Genres() {
             navigate('/user/genre-matching');
         } catch (error) {
             console.error('Error submitting genres:', error);
-            toastRef.current.addToast(error.response?.data.message || 'Something went wrong');
+            toastRef.current.addToast('Something went wrong');
         }
     };
 

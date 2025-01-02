@@ -2,7 +2,7 @@ import { io } from 'socket.io-client';
 
 export async function initializeSocket(token) {
     if (!token) {
-        console.error('No token found. Cannot establish socket connection.');
+        console.error('no token found, cannot connect socket');
         return null;
     }
 
@@ -12,11 +12,11 @@ export async function initializeSocket(token) {
     });
 
     socket.on('connect', () => {
-        console.log('Socket connected with ID:', socket.id);
+        console.log('socket connected');
     });
 
     socket.on('disconnect', () => {
-        console.log('Socket disconnected');
+        console.log('socket disconnected');
     });
 
     return socket;

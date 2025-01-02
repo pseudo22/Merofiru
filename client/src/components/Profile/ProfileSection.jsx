@@ -16,6 +16,7 @@ export default function ProfileSection() {
     const [userFound, setUserFound] = useState(true);
     const [userName , setUserName] = useState('')
     const [presence, setPresence] = useState(false)
+    const [searchedUserId , setSearchedUserId] = useState('')
 
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -37,6 +38,7 @@ export default function ProfileSection() {
                 if (!userSnap.empty) {
                     const userData = userSnap.docs[0].data();
                     const userGenreRefs = userData?.selectedGenre || [];
+                    const userId = userSnap.docs[0].id
 
                     const genreList = [];
                     for (const genre of userGenreRefs) {
@@ -56,6 +58,7 @@ export default function ProfileSection() {
                     setUserName(userData?.displayName || null);
                     setBio(userData?.bio || null);
                     setPresence(userData?.presence || false)
+                    setSearchedUserId(userId)
                 } else {
                     setUserFound(false)
                 }
@@ -73,7 +76,7 @@ export default function ProfileSection() {
         <>
             {userFound ?
              (
-             <Profile presence={presence} canUpdate={canUpdate} pfp={pfp} userName={userName} bio={bio} genres={genres} />
+             <Profile presence={presence} canUpdate={canUpdate} pfp={pfp} userName={userName} bio={bio} genres={genres} searchedUserId={searchedUserId} />
              ) : 
              
              <div className="absolute text-white top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mx-2 items-center gap-y-4 p-4 flex flex-col rounded-lg bg-[#4e736a] shadow-lg md:w-96 w-full h-auto">

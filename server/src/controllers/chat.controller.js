@@ -31,12 +31,17 @@ const getMessages = asyncHandler(async (req, res) => {
             seenByBoth : lastMessage?.seenByUsers.length == 2
         }
 
-        console.log(lastMessageDetails);
+        const lastMessageSeenByBothUsers = chatDoc.data().lastMessageSeenByBothUsers || null;
+        const lastMessageSeenByBothUsersDetails = {
+            id : lastMessageSeenByBothUsers?.id,
+            seenByBoth : lastMessageSeenByBothUsers?.seenByUsers.length == 2
+        }
+
         
         const messages = messagesSnapshot.docs.map((doc) => doc.data());
 
         res.status(200).json(
-            new ApiResponse(200, { lastMessageDetails, chats: messages.reverse() }, 'Data fetched successfully')
+            new ApiResponse(200, { lastMessageDetails, lastMessageSeenByBothUsersDetails, chats: messages.reverse() }, 'Data fetched successfully')
         );
     } catch (error) {
         console.error("Error fetching data:", error);

@@ -6,12 +6,14 @@ import { ApiClient } from '../../assets/axios';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../assets/firebaseConfig';
 import back from '../../images/back.png';
+import CrptoJS from 'crypto-js';
 
 export default function Chat() {
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [lastMessageDetails, setLastMessageDetails] = useState(null);
+  const [lastMessageSeenByBothUsersDetails, setLastMessageSeenByBothUsersDetails] = useState(null);
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
@@ -20,7 +22,9 @@ export default function Chat() {
 
   const params = useParams();
   const navigate = useNavigate();
-  const receiverId = params.id;
+  const encryptedUserId = params.id;
+
+  const receiverId = CrptoJS.AES.decrypt(encryptedUserId, import.meta.env.VITE_SECRET_KEY).toString(CrptoJS.enc.Utf8);
 
   const token = useSelector((state) => state.user.token);
   const userId = useSelector((state) => state.user.userId);
@@ -60,11 +64,12 @@ export default function Chat() {
     const fetchMessages = async () => {
       try {
         const response = await ApiClient.get(`/api/messages/${userId}/${receiverId}`);
-        const { lastMessageDetails, chats } = response.data?.data;
+        const { lastMessageDetails, chats , lastMessageSeenByBothUsersDetails } = response.data?.data;
         setMessages(chats || []);
         setLastMessageDetails(lastMessageDetails || null);
+        setLastMessageSeenByBothUsersDetails(lastMessageSeenByBothUsersDetails || null);
       } catch (error) {
-        console.error('Error fetching messages:', error);
+        console.error('Error fetching messages:');
       } finally {
         setIsLoading(false);
       }
@@ -135,12 +140,11 @@ export default function Chat() {
   };
 
   const handleBack = () => {
-    navigate('/chat');
-    window.reload()
+    navigate('/chat')
   };
 
   const getMessageBackground = (message) => {
-    if (lastMessageDetails?.id === message.id && lastMessageDetails?.seenByBoth) {
+    if (lastMessageDetails && lastMessageDetails?.id === message.id && lastMessageDetails?.seenByBoth || lastMessageSeenByBothUsersDetails && lastMessageSeenByBothUsersDetails?.id === message.id) {
       return 'bg-blue-500';
     }
     const isSeenByBoth =
@@ -156,9 +160,9 @@ export default function Chat() {
   };
 
   const handleKeyDown = (event) => {
-    if (event.key === 'Enter' && !event.shiftKey) { // 'Enter' key without 'Shift' for new line
-      event.preventDefault(); // Prevent new line on Enter
-      handleSendMessage(); // Send the message
+    if (event.key === 'Enter' && !event.shiftKey) { 
+      event.preventDefault()
+      handleSendMessage()
     }
   };
 
@@ -229,13 +233,15 @@ export default function Chat() {
           placeholder="type some melodies?"
           type="text"
           className="w-full py-2"
-          onKeyDown={handleKeyDown} // Handle 'Enter' key press
+          onKeyDown={handleKeyDown}
+          onKeyDownCapture={handleTyping}
         />
         <button
-          onClick={handleSendMessage} // Send message on button click
-          className="flex justify-center bg-[#5cc6abeb] text-white items-center px-6 py-2 rounded-lg transition-all"
+          onClick={handleSendMessage}
+          disabled={!newMessage.trim()}
+          className={`"flex justify-center text-white items-center px-6 py-2 rounded-lg transition-all" ${!newMessage.trim() ? 'bg-[#4087762e] cursor-not-allowed' : 'bg-[#5cc6abeb] cursor-pointer'}`}
         >
-          Sing
+          sing
         </button>
       </div>
     </div>

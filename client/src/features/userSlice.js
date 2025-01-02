@@ -7,9 +7,11 @@ const initialState = {
   profile : null,
   bio : '',
   isOnline : false,
-  topMatches : [],
   selectedGenres : [],
-
+  blockedUsers : [],
+  pendingRequests : [],
+  toBeConfirmed : [],
+  pendingRequestsCount : 0,
 };
 
 const userSlice = createSlice({
@@ -29,9 +31,13 @@ const userSlice = createSlice({
       state.userName = 'stranger';
       state.selectedGenres = [];
       state.topMatches = [];
+      state.blockedUsers = [];
+      state.pendingRequests = [];
+      state.toBeConfirmed = [];
+      state.pendingRequestsCount = 0;
       state.bio = '';
       state.profile = null;
-      state.isOnline = false
+      state.isOnline = false;
     },
     setToken: (state, action) => {
       state.token = action.payload.token;
@@ -39,12 +45,21 @@ const userSlice = createSlice({
     setUserGenres: (state, action) => {
       state.selectedGenres = action.payload.selectedGenres;
     },
-    settopMatches: (state, action) => {
-      state.topMatches = action.payload.topMatches;
+    setToBeConfirmed: (state, action) => {
+      state.toBeConfirmed = action.payload.toBeConfirmed;
     },
+    setBlockedUsers: (state, action) => {
+      state.blockedUsers = action.payload.blockedUsers;
+    },
+
+    setPendingRequests: (state, action) => {
+      state.pendingRequests = action.payload.pendingRequests;
+      state.pendingRequestsCount = action.payload.pendingRequests?.length;
+    },
+
   },
 });
 
-export const { setUser, clearUser, setToken, setUserGenres } = userSlice.actions;
+export const { setUser, clearUser, setToken, setUserGenres , setToBeConfirmed , setBlockedUsers , setPendingRequests } = userSlice.actions;
 
 export default userSlice.reducer;

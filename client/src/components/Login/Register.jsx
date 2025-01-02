@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
@@ -9,7 +9,6 @@ function Register() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false)
   const [showPassword, setShowPassword] = useState(false);
-
   const navigate = useNavigate()
 
   function handleContinue() {
@@ -37,9 +36,14 @@ function Register() {
 
   return (
     <>
+      <div className="top-left cursor-pointer m-1 absolute top-0 left-0 bg-[#5cc6abeb] w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 lg:w-36 lg:h-36 transform rotate-90 flex items-center justify-center z-999 text-white sm:text-lg md:text-2xl lg:text-3xl rounded-lg shadow-lg">
+        merofiru
+      </div>
 
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mx-2 items-center gap-y-4 p-4 flex flex-col rounded-lg bg-[#CCD0CF] shadow-lg md:w-96 w-full h-auto">
+      <div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mx-2 items-center gap-y-4 p-4 flex flex-col rounded-lg bg-[#CCD0CF] shadow-lg md:w-96 w-full h-auto">
         {error && <p className="text-red-500">{error}</p>}
+
         <input
           type="email"
           name="email"
@@ -49,7 +53,7 @@ function Register() {
           placeholder="email"
           required
         />
-        <div className="relative w-full">
+        <div className=" w-full">
           <input
             type={showPassword ? "text" : "password"}
             name="password"
@@ -60,7 +64,7 @@ function Register() {
             required
           />
           <span
-            className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-600 cursor-pointer"
+            className="absolute top-[40%] right-[5%] text-gray-600 cursor-pointer"
             onClick={() => setShowPassword(!showPassword)}
           >
             <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
@@ -68,12 +72,19 @@ function Register() {
         </div>
         <button
           onClick={handleContinue}
-          className="bg-[#5cc6abeb] text-white py-2 px-4 rounded-lg hover:outline-slate-700 outline-slate-500 w-full mt-4 transition-all"
+          className={`text-white py-2 px-4 rounded-lg w-full ${email.length > 0 && password.length > 0 ? 'cursor-pointer bg-[#5cc6abeb]' : 'cursor-not-allowed bg-[#4087762e]'} mt-4 transition-all`}
+          disabled={!email.length > 0 && !password.length > 0}
         >
           continue
         </button>
+        </div>
       </div>
 
+      <div
+            className="bottom-right m-1 absolute bottom-0 right-0 bg-[#5cc6abeb] w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 lg:w-36 lg:h-36 transform -rotate-90 flex items-center justify-center p-4 z-50 text-white text-sm sm:text-lg md:text-2xl lg:text-3xl rounded-lg shadow-lg"
+        >
+        hello stranger
+      </div>
     </>
   );
 }
@@ -81,69 +92,3 @@ function Register() {
 export default Register;
 
 
-
-
-
-
-
-
-
-
-// const dispatch = useDispatch();
-// const userStatus = useSelector((state) => state.user.status);
-// const userError = useSelector((state) => state.user.error);
-// // const navigate = useNavigate();
-
-
-
-
-
-
-
-
-{/* <form onSubmit={getDatafromForm}>
-      <div className='register relative h-[90vh] flex flex-col items-center justify-center gap-6'>
-        {error && <div className='error-message text-red-500'>{error}</div>}
-        {userError && <div className='error-message text-red-500'>{userError}</div>}
-        {userStatus === 'loading' && <div className='loading-message'>Registering...</div>}
-        
-        
-        <input
-          type="text"
-          name="username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className='text-black rounded-lg outline outline-1 hover:outline-indigo-800 outline-indigo-500'
-          placeholder='Enter your username'
-          required
-        />
-        <textarea
-          name="bio"
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
-          className='text-black rounded-lg outline outline-1 hover:outline-indigo-800 outline-indigo-500 resize-none'
-          placeholder='Bio'
-          rows="4"
-        />
-        <input
-          id='pfp'
-          type='file'
-          accept='image/*'
-          className='hidden'
-          onChange={handleFileChange}
-        />
-        <button
-          type='button'
-          onClick={submitImage}
-          className='text-[#112ab6cb] rounded-full outline outline-1 px-3 py-5'
-        >
-          Upload what defines you
-        </button>
-        <button
-          type='submit'
-          className='text-[#112ab6cb] rounded-full outline outline-1 px-12 py-3'
-        >
-          Next
-        </button>
-      </div>
-    </form> */}

@@ -7,6 +7,7 @@ import removefriend from '../../images/removefriend.png';
 import { useNavigate } from "react-router-dom";
 import ToastContainer from "../Toast/ToastContainer";
 import { setTopMatches } from "../../features/topMatchesSlice";
+import CryptoJS from 'crypto-js';
 
 export default function ChatList() {
     const [userList, setUserList] = useState([]);
@@ -16,14 +17,12 @@ export default function ChatList() {
     const navigate = useNavigate();
     const dispatch = useDispatch()
 
-
     const { topMatches } = useSelector((state) => state.topMatches) || []
     const { friends } = useSelector((state) => state.friends) || []
 
     const toastRef = useRef();
 
-    const userId = useSelector((state) => state.user.userId);
-    const userRef = doc(db, 'users', userId);
+    const userId = useSelector((state) => state.user.userId)
 
     useEffect(() => {
         setLoading(true)
@@ -36,6 +35,7 @@ export default function ChatList() {
     }
 
     async function removeFromSimilarList(otherUserId) {
+        const userRef = doc(db, 'users', userId);
         const userSnap = await getDoc(userRef);
 
         if (userSnap.exists()) {
@@ -43,17 +43,16 @@ export default function ChatList() {
             const updatedtopMatches = topMatches.filter((user) => user.userId !== otherUserId);
             await updateDoc(userRef, {
                 topMatches: updatedtopMatches,
-            });
-            console.log(updatedtopMatches);
+            })
 
             dispatch(setTopMatches(updatedtopMatches))
-
-
             if (switchTo === 'match') setUserList(updatedtopMatches)
         }
     }
 
     async function openChat(otherUserId) {
+
+        if(switchTo === 'match') {
         const otherUserRef = doc(db, 'users', otherUserId);
         const otherUserSnap = await getDoc(otherUserRef);
 
@@ -75,9 +74,12 @@ export default function ChatList() {
                 toastRef.current.addToast('you are not in the top matches on the other side, send a friend request instead?');
                 return;
             }
-
-            navigate(`/chat/${otherUserId}`);
         }
+            
+    }
+            const encryptedUserId =  CryptoJS.AES.encrypt(otherUserId, import.meta.env.VITE_SECRET_KEY).toString()
+
+            navigate(`/chat/${encryptedUserId}`);
     }
 
     function openProfile(otherUserName) {
@@ -103,8 +105,8 @@ export default function ChatList() {
                 </div>
 
                 <div className="flex-grow overflow-y-auto">
-                    {loading && <p className="text-center">loading...</p>}
-                    {!loading && userList?.length > 0 ? (
+                    {loading && <p className="text-center text-sm md:text-base">loading...</p>}
+                    {!loading && userList?.length > 0 && userList ? (
                         userList.map((user, id) => (
                             <div
                                 key={id}
@@ -112,7 +114,7 @@ export default function ChatList() {
                             >
                                 <div className="flex gap-8 items-end">
                                     <p className="font-semibold text-lg md:text-xl">{user.userName}</p>
-                                    <p className="text-sm md:text-base">Melo score: {user.similarity}</p>
+                                    {switchTo === 'match' ? (<p className="text-sm md:text-base">Melo score: {user.similarity}</p>) : ('')}
                                 </div>
                                 <div className="flex gap-4">
                                     <button
@@ -143,12 +145,12 @@ export default function ChatList() {
                         ))
                     ) : (
                         !loading && (
-                            <p className="text-center">no melos found, try finding some?</p>
+                            <p className="text-center text-sm md:text-base">no melos found, try finding some?</p>
                         )
                     )}
-
                 </div>
             </div>
         </>
+
     );
 }

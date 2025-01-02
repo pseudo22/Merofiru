@@ -70,6 +70,26 @@ export function setupSocket(server) {
                     seenByUsers: updatedSeenByUsers,
                 });
 
+                await messageRef.set({
+                    ...newMessageData , seenByUsers : updatedSeenByUsers
+                })
+
+                if (updatedSeenByUsers.length === 2){
+                    await chatDocRef.set(
+                        {
+                            lastMessageSeenByBothUsers: {
+                                id: messageRef.id,
+                                senderId,
+                                receiverId,
+                                message,
+                                timestamp,
+                                seenByUsers: updatedSeenByUsers,
+                            }
+                        },
+                        { merge: true }
+                    );
+                }
+
                 await chatDocRef.set(
                     {
                         lastMessage: {

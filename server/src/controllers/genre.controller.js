@@ -92,6 +92,9 @@ const findTopMatches = asyncHandler(async (req, res) => {
         //fetching current user selected genre
 
         const userGenres = userDoc.data()?.selectedGenre || []
+        const userBlockedList = userDoc.data()?.blockedUsers || []
+        
+        const usersFriends = userDoc.data()?.friends || []
 
         const genreData = []
         for (const genreRef of userGenres){
@@ -118,7 +121,7 @@ const findTopMatches = asyncHandler(async (req, res) => {
             const invertedGenreData = invertedGenreDataRef.data()
             
             invertedGenreData?.users.forEach((otherUserId) =>{
-                if (otherUserId != userId ){
+                if (otherUserId != userId && !userBlockedList.includes(otherUserId) && !usersFriends.includes(otherUserId) ){
                     userMap[otherUserId] = (userMap[otherUserId] || 0) + 1
                 }
             })  
@@ -142,7 +145,7 @@ const findTopMatches = asyncHandler(async (req, res) => {
             }
         }))
         
-        similarityScore.sort((a, b) => b.similarity - a.similarity).slice(0, 5)        
+        similarityScore.sort((a, b) => b.similarity - a.similarity).slice(0, 5)   
         const batch = db.batch()
 
         batch.set(userRef, { topMatches: similarityScore } , {merge : true})

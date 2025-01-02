@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth, getToken } from '../assets/firebaseConfig';
-import { setUser, clearUser, setToken, setUserGenres } from '../features/userSlice';
+import { setUser, clearUser, setToken, setUserGenres , setToBeConfirmed ,
+  setBlockedUsers , setPendingRequests
+} from '../features/userSlice';
 import { setTopMatches, clearTopMatches } from '../features/topMatchesSlice';
 import { setFriends, clearFriends } from '../features/friendsSlice';
 import { useDispatch } from 'react-redux';
@@ -29,7 +31,6 @@ const useAuth = () => {
     const handleAuthStateChange = async (user) => {
       if (user && navigator.onLine) {
         try {
-          console.log('User logged in');
           currentUser = user;
 
           const userRef = doc(db, 'users', user.uid);
@@ -68,8 +69,11 @@ const useAuth = () => {
             );
             dispatch(setToken({ token }));
             dispatch(setUserGenres({ selectedGenres: genres.filter((genre) => genre !== null) }));
-            dispatch(setTopMatches({ topMatches }));
+            dispatch(setTopMatches({ topMatches  }));
             dispatch(setFriends({ friends }));
+            dispatch(setToBeConfirmed({ toBeConfirmed : userData?.toBeConfirmed || [] })); 
+            dispatch(setBlockedUsers({ blockedUsers : userData?.blockedUsers || [] }));
+            dispatch(setPendingRequests({ pendingRequests : userData?.pendingRequests || [] , pendingRequestsCount : userData?.pendingRequests?.length || 0 }));
 
             await updatePresence(user, true);
           }
