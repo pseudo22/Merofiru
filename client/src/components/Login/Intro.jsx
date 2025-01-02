@@ -108,6 +108,8 @@ export default function Intro() {
       }, 1000);
 
     } catch (error) {
+      console.log(error);
+      
       toastRef.current.addToast(error.response?.data.errors)
     }
   };
