@@ -167,7 +167,7 @@ export default function Profile({ canUpdate, presence, pfp, userName, bio, genre
                                 </button>
                                 <button
                                     onClick={handleCancel}
-                                    className="bg-[#5cc6abeb] text-white p-2 rounded-md w-[60%] h-[40%] md:h-[20%]"
+                                    className="bg-[#5cc6abeb] text-white px-2 rounded-md w-[60%] h-[60%] md:h-[20%]"
                                 >
                                     not sure?
                                 </button>
