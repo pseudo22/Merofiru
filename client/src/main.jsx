@@ -45,9 +45,8 @@ const router = createBrowserRouter([
   {
     path : '/register/intro',
     element :(
-      <Layout>
         <Intro/>
-      </Layout>
+      
     ),
     errorElement : <Error/>
   },{
