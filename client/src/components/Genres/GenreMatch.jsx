@@ -53,7 +53,8 @@ export default function GenreMatch() {
                         })
                     )
                     setCompatiblePeople(userDetails)
-                    dispatch(setTopMatches(compatiblePeople))
+                    dispatch(setTopMatches(userDetails))
+                    
                     toastRef.current.addToast('merofiru for you')
                 }
             }
