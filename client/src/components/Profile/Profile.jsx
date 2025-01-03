@@ -197,7 +197,7 @@ export default function Profile({ canUpdate, presence, pfp, userName, bio, genre
                     <>
                         <div className="profile-view relative flex flex-col items-center mt-5 h-[90%] w-full">
                             <p className="absolute top-32 left-0 text-2xl md:text-4xl lg:text-4xl md:top-32">{userName}</p>
-                            <p onClick={findSimilarity} className="absolute top-20  border rounded-full px-2 py-1 md:px-2 md:py-4 lg:px-2 lg:py-4">find similarity?</p>
+                            {!canUpdate ? (<p onClick={findSimilarity} className="absolute top-20  border rounded-full px-2 py-1 md:px-2 md:py-4 lg:px-2 lg:py-4">find similarity?</p>) : ('')}
                             <div className="absolute right-0">
                                 <img src={pfp} className="relative w-32 h-32 rounded-full" alt="profile" />
                                 {currentPresence ? (
