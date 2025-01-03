@@ -166,5 +166,58 @@ const findTopMatches = asyncHandler(async (req, res) => {
 })
 
 
+const findSimilarityBetweenUsers = asyncHandler(async (req, res) => {
+    const { userId, targetUserId } = req.body;
+  
+    if (!userId || !targetUserId) {
+      return res.status(400).json(new ApiResponse(400, '', 'user id or target user id is required'));
+    }
+  
+    try {
+      const userRef = db.collection('users').doc(userId);
+      const userDoc = await userRef.get();
+      if (!userDoc.exists) {
+        return res.status(404).json(new ApiResponse(404, '', 'melo not found'));
+      }
+  
+      const targetUserRef = db.collection('users').doc(targetUserId);
+      const targetUserDoc = await targetUserRef.get();
+      if (!targetUserDoc.exists) {
+        return res.status(404).json(new ApiResponse(404, '', 'target melo not found'));
+      }
+  
+      const userGenres = userDoc.data()?.selectedGenre || [];
+      const targetUserGenres = targetUserDoc.data()?.selectedGenre || [];
+  
+      const userGenreData = [];
+      for (const genreRef of userGenres) {
+        const genreDoc = await genreRef.get();
+        if (genreDoc.exists) {
+          userGenreData.push(genreDoc.id);
+        }
+      }
+  
+      const targetGenreData = [];
+      for (const genreRef of targetUserGenres) {
+        const genreDoc = await genreRef.get();
+        if (genreDoc.exists) {
+          targetGenreData.push(genreDoc.id);
+        }
+      }
+  
+      const intersection = userGenreData.filter((genre) => targetGenreData.includes(genre)).length;
+      const union = new Set([...userGenreData, ...targetGenreData]).size;
+      const similarity = ((intersection / union) * 100).toFixed(2);
+  
+      return res.status(200).json(
+        new ApiResponse(200, '', `similarity between melo: ${similarity}%`)
+      );
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json(new ApiResponse(500, '', 'error calculating similarity'));
+    }
+  });
+  
 
-export { updateGenre, findTopMatches }
+
+export { updateGenre, findTopMatches , findSimilarityBetweenUsers }

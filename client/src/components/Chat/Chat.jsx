@@ -70,7 +70,7 @@ export default function Chat() {
         setLastMessageDetails(lastMessageDetails || null);
         setLastMessageSeenByBothUsersDetails(lastMessageSeenByBothUsersDetails || null);
       } catch (error) {
-        console.error('Error fetching messages:');
+        console.error(error?.response?.data.message);
       } finally {
         setIsLoading(false);
       }

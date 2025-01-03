@@ -59,11 +59,17 @@ function Genres() {
                 selectedGenres:localSelectedGenres,
             });
 
-            toastRef.current.addToast(response?.data.message);
             if (JSON.stringify(localSelectedGenres) !== JSON.stringify(selectedGenres)) {
                 dispatch(setUserGenres({ selectedGenres: localSelectedGenres }));
+            }else{
+                toastRef.current.addToast('nothing changed');
             }
-            navigate('/user/genre-matching');
+
+            toastRef.current.addToast('genres updated!!');
+
+            setTimeout(() => {
+                navigate('/user/genre-matching');
+            }, 2000);
         } catch (error) {
             console.error('Error submitting genres:', error);
             toastRef.current.addToast('Something went wrong');

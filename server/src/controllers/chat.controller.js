@@ -41,11 +41,10 @@ const getMessages = asyncHandler(async (req, res) => {
         const messages = messagesSnapshot.docs.map((doc) => doc.data());
 
         res.status(200).json(
-            new ApiResponse(200, { lastMessageDetails, lastMessageSeenByBothUsersDetails, chats: messages.reverse() }, 'Data fetched successfully')
+            new ApiResponse(200, { lastMessageDetails, lastMessageSeenByBothUsersDetails, chats: messages.reverse() }, 'messages fetched')
         );
     } catch (error) {
-        console.error("Error fetching data:", error);
-        res.status(500).json(new ApiResponse(500, '', 'Error while fetching data'));
+        res.status(404).json(new ApiResponse(404, '', 'no messages found'));
     }
 });
 
