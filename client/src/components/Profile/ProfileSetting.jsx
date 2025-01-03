@@ -34,24 +34,26 @@ export default function ProfileSetting() {
 
     const handleLogout = async () => {
         setIsLoading(true);
-    
-        try {
-            await signOut(auth);
 
+        try {
             dispatch(clearUser());
             dispatch(clearTopMatches())
             dispatch(clearFriends())
 
+            const userRef = doc(db, 'users', auth.currentUser.uid);
+            await updateDoc(userRef, { presence : false })
+
+            await signOut(auth);
             toastRef.current.addToast("see you again!!");
 
             setTimeout(() => {
                 navigate("/login");
             }, 2000);
 
-            
+
         } catch (error) {
             toastRef.current.addToast(error.message);
-        }finally{
+        } finally {
             setIsLoading(false);
         }
     }
@@ -118,36 +120,36 @@ export default function ProfileSetting() {
 
     async function acceptFriend(receiverId, receiverName) {
         try {
-            const response = await ApiClient.post("api/user/confirm-friend-request", { 
-                senderId: userId, 
-                senderName: userName, 
-                receiverName, 
-                receiverId 
+            const response = await ApiClient.post("api/user/confirm-friend-request", {
+                senderId: userId,
+                senderName: userName,
+                receiverName,
+                receiverId
             });
-    
+
             if (response.data.success) {
                 const updatedPendingRequests = localPendingRequests.filter(user => user.userId !== receiverId);
                 const updatedPendingRequestsCount = updatedPendingRequests.length;
-    
+
                 setLocalPendingRequests(updatedPendingRequests);
                 setLocalPendingRequestsCount(updatedPendingRequestsCount);
-    
+
                 dispatch(setPendingRequests({ pendingRequests: updatedPendingRequests, pendingRequestsCount: updatedPendingRequestsCount }));
-    
+
                 setLocalFriendList([...localFriendList, { userName: receiverName, userId: receiverId }]);
                 dispatch(setFriends({ friends: localFriendList }));
             }
-    
+
             toastRef.current.addToast(response?.data.message);
         } catch (error) {
             toastRef.current.addToast(error?.response?.data.message);
         }
     }
-    
+
 
     async function rejectFriend(senderId) {
         try {
-            const response = await ApiClient.post("api/user/reject-friend-request", { senderId: senderId, receiverId : userId });
+            const response = await ApiClient.post("api/user/reject-friend-request", { senderId: senderId, receiverId: userId });
             if (response.data.success) {
 
                 const updatedPendingRequests = localPendingRequests?.filter(user => user.userId !== senderId);
