@@ -8,6 +8,7 @@ import alreadyfriends from '../../images/friends.png';
 import block from '../../images/block.png';
 import pending from '../../images/pending.png';
 import { setToBeConfirmed, setBlockedUsers } from '../../features/userSlice.js';
+import { auth } from "../../assets/firebaseConfig.js";
 
 
 export default function Profile({ canUpdate, presence, pfp, userName, bio, genres, searchedUserId }) {
@@ -136,10 +137,22 @@ export default function Profile({ canUpdate, presence, pfp, userName, bio, genre
         }
     }
 
-
+    async  function findSimilarity() {
+        toastRef.current.addToast('finding similarity');
+        try {
+            const res = await ApiClient.post('/api/genre/similarity', { userId: userId , targetUserId: searchedUserId });
+            if (res.data.success) {
+                toastRef.current.addToast(res.data.message);
+            } 
+            
+        } catch (error) {
+            toastRef.current.addToast(error?.response?.data.message);
+        }
+    }
 
     return (
         <>
+
             <ToastContainer ref={toastRef} />
             <div className="absolute flex flex-col gap-y-4 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-lg bg-[#CCD0CF] shadow-lg w-full h-[60%] md:w-[50%] md:h-full">
                 {isEditing ? (
@@ -184,6 +197,7 @@ export default function Profile({ canUpdate, presence, pfp, userName, bio, genre
                     <>
                         <div className="profile-view relative flex flex-col items-center mt-5 h-[90%] w-full">
                             <p className="absolute top-32 left-0 text-2xl md:text-4xl lg:text-4xl md:top-32">{userName}</p>
+                            <p onClick={findSimilarity} className="absolute top-20  border rounded-full px-2 py-1 md:px-2 md:py-4 lg:px-2 lg:py-4">find similarity?</p>
                             <div className="absolute right-0">
                                 <img src={pfp} className="relative w-32 h-32 rounded-full" alt="profile" />
                                 {currentPresence ? (
