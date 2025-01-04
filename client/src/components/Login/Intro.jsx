@@ -105,7 +105,7 @@ export default function Intro() {
       toastRef.current.addToast('ready to login?')
       setTimeout(() => {
         navigate('/login');
-      }, 1000);
+      }, 2000);
 
     } catch (error) {
       console.log(error);
