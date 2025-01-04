@@ -24,7 +24,7 @@ function Register() {
       setError('not a valid email')
       return
     }
-    if(!EmailExists(email)){
+    if(EmailExists(email)){
       setError('email already exists')
       return
     }
@@ -47,7 +47,7 @@ function Register() {
         const querySnap = await getDocs(q)
         return querySnap.empty
       } catch (error) {
-        return false
+        return true
       }
     } else {
       return false
