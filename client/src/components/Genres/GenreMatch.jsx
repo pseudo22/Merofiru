@@ -69,6 +69,10 @@ export default function GenreMatch() {
                     dispatch(setTopMatches(userDetails))
                     
                     toastRef.current.addToast('merofiru for you')
+
+                    setTimeout(() => {
+                        navigate('/chatlist')
+                    }, 2000);
                 }
             }
         } catch (error) {
@@ -79,9 +83,6 @@ export default function GenreMatch() {
         }
     }
 
-    function goChat(userId) {
-        navigate(`/chat/${userId}`)
-    }
 
 
     return (
@@ -117,9 +118,6 @@ export default function GenreMatch() {
                                     </p>
                                 </div>
                             </div>
-                            <button onClick={() => goChat(person.userId)} className="px-4 py-2 border rounded-lg text-sm sm:text-base md:text-lg">
-                                Chat
-                            </button>
                         </div>
                     ))}
                 </div>
