@@ -5,7 +5,8 @@ import { ApiClient } from "../../assets/axios";
 import ToastContainer from "../Toast/ToastContainer";
 import { setBlockedUsers, setToBeConfirmed, setPendingRequests, clearUser } from "../../features/userSlice";
 import { clearFriends, setFriends } from "../../features/friendsSlice";
-import { auth } from "../../assets/firebaseConfig";
+import { auth , db } from "../../assets/firebaseConfig";
+import { doc  , updateDoc } from "firebase/firestore";
 
 import gsap from 'gsap';
 import { signOut } from "firebase/auth";
@@ -44,6 +45,7 @@ export default function ProfileSetting() {
             await updateDoc(userRef, { presence : false })
 
             await signOut(auth);
+
             toastRef.current.addToast("see you again!!");
 
             setTimeout(() => {
