@@ -15,13 +15,13 @@ const registerUser = asyncHandler(async (req, res) => {
     const { email, displayName, password, bio } = req?.body;
 
     if ([email, displayName].some((all) => all?.trim() === "")) {
-        return res.status(400).json(new ApiError(400, '', "all fields are required"));
+        return res.status(400).json(new ApiResponse(400, '', "all fields are required"));
     }
 
     const oldUser = await db.collection('users').where('email', '==', email).get();
 
     if (!oldUser.empty) { // Check if user already exists
-        return res.status(400).json(new ApiError(400, '', 'user or email already present'));
+        return res.status(400).json(new ApiResponse(400, '', 'user or email already present'));
     }
 
     const pfpPath = req?.file?.path;
@@ -31,7 +31,7 @@ const registerUser = asyncHandler(async (req, res) => {
         pfpurl = await uploadOnCloudinary(pfpPath);
     } catch (error) {
         console.error("Error uploading to Cloudinary:", error);
-        return res.status(500).json(new ApiError(500, "", "error while uploading profile picture"));
+        return res.status(500).json(new ApiResponse(500, "", "error while uploading profile picture"));
     }
 
     let firebaseUser;
@@ -41,7 +41,7 @@ const registerUser = asyncHandler(async (req, res) => {
         });
     } catch (error) {
         console.log(error);
-        return res.status(500).json(new ApiError(500, '', 'error creating user in firebase auth'));
+        return res.status(500).json(new ApiResponse(500, '', 'error creating user in firebase auth'));
     }
 
     const userRef = await db.collection('users').doc(firebaseUser.uid).set({
@@ -53,7 +53,7 @@ const registerUser = asyncHandler(async (req, res) => {
     });
 
     if (!userRef) {
-        return res.status(500).json(new ApiError(500, '', 'something went wrong'));
+        return res.status(500).json(new ApiResponse(500, '', 'something went wrong'));
     }
 
     const newUser = await db.collection('users').doc(firebaseUser.uid).get()
