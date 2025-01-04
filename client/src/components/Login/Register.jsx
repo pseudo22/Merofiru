@@ -78,7 +78,7 @@ function Register() {
             placeholder="email"
             required
           />
-          <div className=" w-full">
+          <div className=" w-full h-fit relative">
             <input
               type={showPassword ? "text" : "password"}
               name="password"
@@ -89,7 +89,7 @@ function Register() {
               required
             />
             <span
-              className="absolute top-[40%] right-[5%] text-gray-600 cursor-pointer"
+              className="absolute top-[20%] right-[5%] text-gray-600 cursor-pointer"
               onClick={() => setShowPassword(!showPassword)}
             >
               <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
