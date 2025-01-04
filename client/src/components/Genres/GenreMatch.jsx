@@ -12,10 +12,14 @@ import { setUserGenres } from "../../features/userSlice.js";
 
 export default function GenreMatch() {
 
-    const [compatiblePeople, setCompatiblePeople] = useState([])
-    const [loading, setLoading] = useState(false)
     const userId = useSelector((state) => state.user.userId)
     const userGenres = useSelector((state) => state.user.selectedGenres)
+
+    const [compatiblePeople, setCompatiblePeople] = useState([])
+    const [loading, setLoading] = useState(false)
+    const [ userGenre, setUserGenre ] = useState(userGenres || [])
+
+    
 
     const dispatch = useDispatch()
 
@@ -31,11 +35,11 @@ export default function GenreMatch() {
             if (currentUserSnap?.exists()) {
 
                 const similarUser = currentUserSnap?.data()?.topMatches || 0
-                if (similarUser.length > 5) {
+                if (similarUser?.length > 5) {
                     toastRef.current.addToast('can have atmost 5 top matches-')
                     return
-                }else if (userGenres.length < 0) {
-                    toastRef.current.addToast('excited, but choose some genres first')
+                }else if (userGenre?.length === 0) {
+                    toastRef.current.addToast('excited?, but choose some genres first')
                     setTimeout(() => {
                         navigate('/user/genre')
                     }, 2000);
