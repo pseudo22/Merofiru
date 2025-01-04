@@ -14,7 +14,7 @@ function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate()
 
-  function handleContinue() {
+  async function handleContinue() {
     if (!email || !password) {
       setError('type both email and password')
       return
@@ -24,7 +24,14 @@ function Register() {
       setError('not a valid email')
       return
     }
-    if(EmailExists(email)){
+
+    const emailExists = await EmailExists(email);
+    if (emailExists === null) {
+      setError('something went wrong')
+      return
+    }
+
+    if (emailExists) {  
       setError('email already exists')
       return
     }
@@ -38,21 +45,21 @@ function Register() {
   }
 
   async function EmailExists(email) {
-    if (email) {
-      try {
-        const userCollection = collection(db, 'users')
-
-        const q = query(userCollection, where('email', '==', email.trim()))
-
-        const querySnap = await getDocs(q)
-        return querySnap.empty
-      } catch (error) {
-        return true
-      }
-    } else {
+    if (!email) {
       return false
     }
+  
+    try {
+      const userCollection = collection(db, 'users');
+      const q = query(userCollection, where('email', '==', email.trim()));
+      const querySnap = await getDocs(q);
+  
+      return !querySnap.empty;
+    } catch (error) {
+      return null
+    }
   }
+  
 
   const isValidEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
