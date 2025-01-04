@@ -8,5 +8,6 @@ export const store = configureStore({
         user : userReducer ,
         topMatches : topMatchesReducer,
         friends : friendsReducer
-    }
+    },
+    devTools: false,
 })
