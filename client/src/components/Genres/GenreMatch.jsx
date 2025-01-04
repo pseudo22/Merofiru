@@ -6,6 +6,7 @@ import {  doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from "react-router-dom";
 import ToastContainer from "../Toast/ToastContainer.jsx";
 import { setTopMatches } from "../../features/topMatchesSlice.js";
+import { setUserGenres } from "../../features/userSlice.js";
 
 
 
@@ -14,6 +15,8 @@ export default function GenreMatch() {
     const [compatiblePeople, setCompatiblePeople] = useState([])
     const [loading, setLoading] = useState(false)
     const userId = useSelector((state) => state.user.userId)
+    const userGenres = useSelector((state) => state.user.selectedGenres)
+
     const dispatch = useDispatch()
 
     const navigate = useNavigate()
@@ -30,6 +33,12 @@ export default function GenreMatch() {
                 const similarUser = currentUserSnap?.data()?.topMatches || 0
                 if (similarUser.length > 5) {
                     toastRef.current.addToast('can have atmost 5 top matches-')
+                    return
+                }else if (userGenres.length < 0) {
+                    toastRef.current.addToast('excited, but choose some genres first')
+                    setTimeout(() => {
+                        navigate('/user/genre')
+                    }, 2000);
                     return
                 }
                 else {
