@@ -11,55 +11,65 @@ import { log } from "console";
 
 const registerUser = asyncHandler(async (req, res) => {
     // Get user details from body
-
-    const { email, displayName, password, bio } = req?.body;
-
-    if ([email, displayName].some((all) => all?.trim() === "")) {
-        return res.status(400).json(new ApiResponse(400, '', "all fields are required"));
-    }
-
-    const oldUser = await db.collection('users').where('email', '==', email).get();
-
-    if (!oldUser.empty) { // Check if user already exists
-        return res.status(400).json(new ApiResponse(400, '', 'user or email already present'));
-    }
-
-    const pfpPath = req?.file?.path;
-
-    let pfpurl;
     try {
-        pfpurl = await uploadOnCloudinary(pfpPath);
-    } catch (error) {
-        console.error("Error uploading to Cloudinary:", error);
-        return res.status(500).json(new ApiResponse(500, "", "error while uploading profile picture"));
-    }
+        const { email, displayName, password, bio } = req?.body;
 
-    let firebaseUser;
-    try {
-        firebaseUser = await firebaseAdmin.auth().createUser({
-            email, password, displayName
+        if ([email, displayName].some((all) => all?.trim() === "")) {
+            return res.status(400).json(new ApiResponse(400, '', "all fields are required"));
+        }
+    
+        const oldUser = await db.collection('users').where('email', '==', email).get();
+    
+        if (!oldUser.empty) { // Check if user already exists
+            return res.status(400).json(new ApiResponse(400, '', 'user or email already present'));
+        }
+    
+        const pfpPath = req?.file?.path;
+    
+        let pfpurl;
+        try {
+            pfpurl = await uploadOnCloudinary(pfpPath);
+        } catch (error) {
+            console.error("Error uploading to Cloudinary:", error);
+            return res.status(500).json(new ApiResponse(500, "", "error while uploading profile picture"));
+        }
+    
+        let firebaseUser;
+        try {
+            firebaseUser = await firebaseAdmin.auth().createUser({
+                email, password, displayName
+            });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json(new ApiResponse(500, '', 'email already exists'));
+        }
+    
+        const userRef = await db.collection('users').doc(firebaseUser.uid).set({
+            displayName,
+            email,
+            profilePicture: pfpurl || process.env.DEFAULT_PFP,
+            bio,
+            topMatches: [],
+            friends: [],
+            pendingRequests: [],
+            toBeConfirmed: [],
+            blockedUsers: [],
+            selectedGenre: [],
+            presence : true
         });
+    
+        if (!userRef) {
+            return res.status(500).json(new ApiResponse(500, '', 'something went wrong'));
+        }
+    
+        const newUser = await db.collection('users').doc(firebaseUser.uid).get()
+    
+    
+        return res.status(200).json(new ApiResponse(200, { user: newUser }, 'user created successfully'));
     } catch (error) {
-        console.log(error);
-        return res.status(500).json(new ApiResponse(500, '', 'error creating user in firebase auth'));
+        return res.status(500).json(new ApiResponse(500, '', 'error while creating user'));
     }
-
-    const userRef = await db.collection('users').doc(firebaseUser.uid).set({
-        displayName,
-        email,
-        profilePicture: pfpurl || process.env.DEFAULT_PFP,
-        bio,
-        topMatches: []
-    });
-
-    if (!userRef) {
-        return res.status(500).json(new ApiResponse(500, '', 'something went wrong'));
-    }
-
-    const newUser = await db.collection('users').doc(firebaseUser.uid).get()
-
-
-    return res.status(200).json(new ApiResponse(200, { user: newUser }, 'user created successfully'));
+   
 });
 
 const loginUser = asyncHandler(async (req, res) => {

@@ -13,6 +13,10 @@ function Genres() {
     const {userId} = useSelector((state) => state.user)
     const [genres, setGenres] = useState([]);
     const [localSelectedGenres, setLocalSelectedGenres] = useState(selectedGenres)
+    const [loading, setLoading] = useState(false);
+    const [navigating, setNavigating] = useState(false);
+
+
     const dispatch = useDispatch()
     const toastRef = useRef()
 
@@ -48,6 +52,7 @@ function Genres() {
     };
 
     const handleSubmit = async () => {
+        setLoading(true);
         if (!localSelectedGenres.length) {
             toastRef.current.addToast('Please select at least one genre!');
             return;
@@ -69,10 +74,13 @@ function Genres() {
 
             setTimeout(() => {
                 navigate('/user/genre-matching');
+                setNavigating(true);
             }, 2000);
+            setLoading(false);
         } catch (error) {
             console.error('Error submitting genres:', error);
             toastRef.current.addToast('Something went wrong');
+            setLoading(false);
         }
     };
 
@@ -112,9 +120,9 @@ function Genres() {
                         className={`bg-[#5cc6abeb] text-white py-2 px-4 rounded-lg hover:outline-slate-700 outline-slate-500 w-52 mt-4 transition-all sm:w-64 md:w-80 lg:w-96 ${localSelectedGenres.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
                             }`}
                         onClick={handleSubmit}
-                        disabled={localSelectedGenres.length === 0}
+                        disabled={localSelectedGenres.length === 0 || loading}
                     >
-                        done selecting?
+                        {loading ? 'saving your selected genres' : 'done selecting??'}
                     </button>
                 </div>
             </div>

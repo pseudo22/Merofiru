@@ -29,7 +29,9 @@ export default function Profile({ canUpdate, presence, pfp, userName, bio, genre
     const [currentPresence, setCurrentPresence] = useState(presence);
     const [isFriends, setIsFriends] = useState(false);
     const [isPending, setIsPending] = useState(false);
-    const [isBlocked, setIsBlocked] = useState(false)
+    const [isBlocked, setIsBlocked] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [disabled, setDisabled] = useState(false);
 
     const toastRef = useRef();
     const navigate = useNavigate();
@@ -59,7 +61,12 @@ export default function Profile({ canUpdate, presence, pfp, userName, bio, genre
 
     const handleSave = async () => {
         try {
+
+            setDisabled(true)
+            setLoading(true)
             if (!updatedBio && !selectedFile) {
+                setDisabled(false)
+                setLoading(false)
                 return toastRef.current.addToast('Nothing to update!');
             }
 
@@ -81,7 +88,11 @@ export default function Profile({ canUpdate, presence, pfp, userName, bio, genre
             } else {
                 console.error("Profile update failed:", response.data.message);
             }
+            setDisabled(false)
+            setLoading(false)
         } catch (error) {
+            setDisabled(false)
+            setLoading(false)
             console.error("Error updating profile:", error);
         }
     };
@@ -137,16 +148,23 @@ export default function Profile({ canUpdate, presence, pfp, userName, bio, genre
         }
     }
 
-    async  function findSimilarity() {
+    async function findSimilarity() {
+
+        setLoading(true)
+        setDisabled(true)
         toastRef.current.addToast('finding similarity');
         try {
-            const res = await ApiClient.post('/api/genre/similarity', { userId: userId , targetUserId: searchedUserId });
+            const res = await ApiClient.post('/api/genre/similarity', { userId: userId, targetUserId: searchedUserId });
             if (res.data.success) {
                 toastRef.current.addToast(res.data.message);
-            } 
-            
+                setLoading(false)
+                setDisabled(false)
+            }
+
         } catch (error) {
             toastRef.current.addToast(error?.response?.data.message);
+            setLoading(false)
+            setDisabled(false)
         }
     }
 
@@ -154,7 +172,7 @@ export default function Profile({ canUpdate, presence, pfp, userName, bio, genre
         <>
 
             <ToastContainer ref={toastRef} />
-            <div className="absolute flex flex-col gap-y-4 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-lg bg-[#CCD0CF] shadow-lg w-full h-[60%] md:w-[50%] md:h-full">
+            <div className="absolute flex flex-col gap-y-4 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-lg bg-[#CCD0CF] shadow-lg w-full h-[60%] md:w-[50%] md:h-full ">
                 {isEditing ? (
                     <>
                         <div className="edit-view gap-y-2 top-12 relative flex flex-col items-center mt-5 h-[80%] w-full">
@@ -169,25 +187,26 @@ export default function Profile({ canUpdate, presence, pfp, userName, bio, genre
                                 value={updatedBio}
                                 onChange={(e) => setUpdatedBio(e.target.value)}
                                 className="p-2 w-[80%] h-[30%] border rounded-md"
-                                placeholder="so what will be the new one?"
+                                placeholder="so what will be the new bio?"
                             />
-                            <div className="flex gap-4 justify-between w-[40%] h-[30%]">
+                            <div className="flex gap-4 justify-between">
                                 <button
                                     onClick={handleSave}
-                                    className="bg-[#5cc6abeb] text-white p-2 rounded-md w-[60%] h-[40%] md:h-[20%]"
+                                    disabled={disabled}
+                                    className={` text-white px-2 rounded-md ${disabled ? 'cursor-not-allowed bg-[#5cc6ab80]' : 'bg-[#5cc6abeb]'}`}
                                 >
-                                    save!!
+                                    {loading ? 'updating-' : 'save!!'}
                                 </button>
                                 <button
                                     onClick={handleCancel}
-                                    className="bg-[#5cc6abeb] text-white px-2 rounded-md w-[60%] h-[60%] md:h-[20%]"
+                                    className="bg-[#5cc6abeb] text-white px-2 py-4 rounded-md "
                                 >
                                     not sure?
                                 </button>
                             </div>
                             <button
                                 onClick={handleNavigation}
-                                className="bg-[#5cc6abeb] text-white p-2 rounded-md w-[30%] h-[10%] md:h-[8%] mt-4"
+                                className="bg-[#5cc6abeb] text-white p-2 rounded-md  mt-4"
                             >
                                 edit genres
                             </button>
@@ -197,9 +216,9 @@ export default function Profile({ canUpdate, presence, pfp, userName, bio, genre
                     <>
                         <div className="profile-view relative flex flex-col items-center mt-5 h-[90%] w-full">
                             <p className="absolute top-32 left-0 text-2xl md:text-4xl lg:text-4xl md:top-32">{userName}</p>
-                            {!canUpdate ? (<p onClick={findSimilarity} className="absolute top-20  border rounded-full px-2 py-1 md:px-2 md:py-4 lg:px-2 lg:py-4">find similarity?</p>) : ('')}
+                            {!canUpdate ? (<button disabled={disabled} onClick={findSimilarity} className={`absolute top-20 w-fit  border rounded-full px-2 py-1 md:px-2 md:py-4 lg:px-2 lg:py-4 ${disabled ? 'cursor-not-allowed' : ''}`}>{loading ? 'finding' : 'find similarity?'}</button>) : ('')}
                             <div className="absolute right-0">
-                                <img src={pfp} className="relative w-32 h-32 rounded-full" alt="profile" />
+                                <img src={pfp} className="relative w-24 h-24  rounded-full" alt="profile" />
                                 {currentPresence ? (
                                     <div
                                         title="online"
@@ -271,6 +290,7 @@ export default function Profile({ canUpdate, presence, pfp, userName, bio, genre
                                 <h2 className="text-xl md:text-3xl lg:text-3xl mt-6">personality spectrum</h2>
                                 <div className="flex flex-wrap gap-x-5 mt-3">
                                     {genres.map((genre, id) => (
+
                                         <span
                                             key={id}
                                             style={{ color: genre.color }}

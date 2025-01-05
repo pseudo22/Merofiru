@@ -40,12 +40,50 @@ const getMessages = asyncHandler(async (req, res) => {
         
         const messages = messagesSnapshot.docs.map((doc) => doc.data());
 
+        if (messages.length === 0) {
+            return res.status(404).json(new ApiResponse(404, '', 'No messages found'));
+        }
+
         res.status(200).json(
             new ApiResponse(200, { lastMessageDetails, lastMessageSeenByBothUsersDetails, chats: messages.reverse() }, 'messages fetched')
         );
     } catch (error) {
-        res.status(404).json(new ApiResponse(404, '', 'no messages found'));
+        res.status(500).json(new ApiResponse(404, '', 'error while fetching messages'));
     }
 });
 
-export { getMessages };
+const fetchLastNotSeenMessage = asyncHandler(async (req, res) => {
+
+    const {userId} = req.body
+
+    try {
+
+        const chatDocsSnap = await db.collection('chats')
+                            .where('lastMessage.seenByUsers' , 'not-in' , [userId])
+                            .get()
+
+        if (chatDocsSnap.empty){
+            return res.status(404).json(new ApiResponse(404 , '' , 'no unseen messages'))
+        }
+
+        const unseenMessage = chatDocsSnap.docs.map(doc => {
+            const chatData = doc.data()
+            const lastMessage = chatData.lastMessage
+            const otherUserId = lastMessage.senderId === userId ? chatData.receiverId : lastMessage.senderId
+
+            return {
+                lastMessage : lastMessage.message,
+                otherUserId : otherUserId
+            }
+        })
+
+        return res.status(200).json(new ApiResponse(200 , unseenMessage , 'unseen messages fetched'))
+        
+    } catch (error) {
+       return  res.status(500).json(new ApiResponse(500 , '' , 'error fetching unseen messages'))
+    }
+
+})
+
+
+export { getMessages , fetchLastNotSeenMessage };

@@ -18,7 +18,7 @@ const ToastContainer = forwardRef((props, ref) => {
   };
 
   return (
-    <div className="fixed top-0 right-0 mt-4 mr-4 z-50">
+    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-80 z-50 space-y-4">
       {toasts.map((toast) => (
         <Toast
           key={toast.id}
@@ -28,6 +28,7 @@ const ToastContainer = forwardRef((props, ref) => {
         />
       ))}
     </div>
+
   );
 });
 

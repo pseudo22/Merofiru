@@ -5,8 +5,8 @@ import { ApiClient } from "../../assets/axios";
 import ToastContainer from "../Toast/ToastContainer";
 import { setBlockedUsers, setToBeConfirmed, setPendingRequests, clearUser } from "../../features/userSlice";
 import { clearFriends, setFriends } from "../../features/friendsSlice";
-import { auth , db } from "../../assets/firebaseConfig";
-import { doc  , updateDoc } from "firebase/firestore";
+import { auth, db } from "../../assets/firebaseConfig";
+import { doc, updateDoc } from "firebase/firestore";
 
 import gsap from 'gsap';
 import { signOut } from "firebase/auth";
@@ -42,7 +42,7 @@ export default function ProfileSetting() {
             dispatch(clearFriends())
 
             const userRef = doc(db, 'users', auth.currentUser.uid);
-            await updateDoc(userRef, { presence : false })
+            await updateDoc(userRef, { presence: false })
 
             await signOut(auth);
 
@@ -219,7 +219,7 @@ export default function ProfileSetting() {
             <div className="absolute flex flex-col gap-y-4 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-lg shadow-lg w-11/12 md:w-1/2 h-[70%]">
                 <div className="profile flex flex-col items-start ml-2">
                     <img
-                        className="object-contain w-12 h-12 md:h-14 md:w-14 lg:h-14 lg:w-14"
+                        className="object-cover w-12 h-12 md:h-18 md:w-18 lg:h-24 lg:w-24"
                         src={profile}
                         alt="profile"
                     />
@@ -228,7 +228,7 @@ export default function ProfileSetting() {
                         edit profile
                     </button>
                 </div>
-                <div className="absolute gap-y-4 gap-x-2 lg:gap-x-2 md:gap-x-2 top-[30%] flex flex-wrap justify-start ml-2">
+                <div className="absolute top-[40%] h-fit gap-x-2 gap-y-2 lg:gap-x-2 md:gap-x-2  flex flex-wrap justify-start ml-2">
                     <button
                         onClick={() => handleOpenList("melos")}
                         className="text-black text-sm lg:text-base md:text-base px-2 py-1 md:px-4 md:py-2 lg:px-4 lg:py-2 rounded-lg border"
@@ -260,163 +260,158 @@ export default function ProfileSetting() {
                     </button>
                 </div>
                 {activeList && (
-                    <div
-                        ref={listRef}
-                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[50%] flex justify-center items-center"
-                    >
-                        <div className="rounded-lg shadow-lg text-black text-lg p-4 w-full h-full">
-                            <button
-                                onClick={() => closeListWithAnimation()}
-                                className="absolute top-2 right-2 text-xl"
-                            >
-                                X
-                            </button>
-                            <h2 className="text-sm md:text-lg lg:text-lg">{activeList}</h2>
-                            <div className="list-items mt-2 flex flex-col gap-2">
-                                {activeList === "melos" && (
-                                    <>
-                                        <div className="flex flex-col gap-y-4">
-                                            {localFriendList?.length > 0 ? (
-                                                localFriendList.map((user, index) => (
-                                                    <div
-                                                        key={index}
-                                                        className="flex items-center justify-between gap-x-3 md:gap-x-6 p-4 border rounded-lg"
-                                                    >
+                    <>
+                        <div
+                            ref={listRef}
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-fit flex justify-center items-center"
+                        >
+                            <div className="rounded-lg shadow-lg text-black text-lg p-4 w-full h-full">
+                                <h2 className="text-sm md:text-lg lg:text-lg">{activeList}</h2>
+                                <div className="list-items mt-2 flex flex-col gap-y-2">
+                                    {activeList === "melos" && (
+                                        <>
+                                            <div className="flex flex-col gap-y-4">
+                                                {localFriendList?.length > 0 ? (
+                                                    localFriendList.map((user, index) => (
                                                         <div
-                                                            onClick={() => goToProfile(user.userName)}
-                                                            className="cursor-pointer text-xs sm:text-sm md:text-base font-medium"
+                                                            key={index}
+                                                            className="flex items-center justify-between gap-x-3 md:gap-x-6 p-4 border rounded-lg"
                                                         >
-                                                            {user.userName}
-                                                        </div>
-                                                        <div className="flex gap-x-3">
-                                                            <button
-                                                                onClick={() => removeFriend(user.userId)}
-                                                                className="px-4 py-2 text-xs sm:text-sm md:text-base border rounded-md"
+                                                            <div
+                                                                onClick={() => goToProfile(user.userName)}
+                                                                className="cursor-pointer text-xs sm:text-sm md:text-base font-medium"
                                                             >
-                                                                remove
-                                                            </button>
+                                                                {user.userName}
+                                                            </div>
+                                                            <div className="flex gap-x-3">
+                                                                <button
+                                                                    onClick={() => removeFriend(user.userId)}
+                                                                    className="px-4 py-2 text-xs sm:text-sm md:text-base border rounded-md"
+                                                                >
+                                                                    remove
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                ))
-                                            ) : (
-                                                <h1 className="text-xs sm:text-sm md:text-lg text-black text-center">
-                                                    no melos there-
-                                                </h1>
-                                            )}
-                                        </div>
-                                    </>
-                                )}
-                                {activeList === "pending melos" && (
-                                    <>
-                                        <div className="flex flex-col gap-y-4">
-                                            {localPendingRequests?.length > 0 ? (
-                                                localPendingRequests.map((user, index) => (
-                                                    <div
-                                                        key={index}
-                                                        className="flex items-center justify-between gap-x-3 md:gap-x-6 p-4 border rounded-lg"
-                                                    >
+                                                    ))
+                                                ) : (
+                                                    <h1 className="text-xs sm:text-sm md:text-lg text-black text-center">
+                                                        no melos there-
+                                                    </h1>
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+                                    {activeList === "pending melos" && (
+                                        <>
+                                            <div className="flex flex-col gap-y-4">
+                                                {localPendingRequests?.length > 0 ? (
+                                                    localPendingRequests.map((user, index) => (
                                                         <div
-                                                            onClick={() => goToProfile(user.userName)}
-                                                            className="cursor-pointer text-xs sm:text-sm md:text-base font-medium"
+                                                            key={index}
+                                                            className="flex items-center justify-between gap-x-3 md:gap-x-6 p-4 border rounded-lg"
                                                         >
-                                                            {user.userName}
-                                                        </div>
-                                                        <div className="flex gap-x-3">
-                                                            <button
-                                                                onClick={() => acceptFriend(user.userId, user.userName)}
-                                                                className="px-4 py-2 text-xs sm:text-sm md:text-base border rounded-md"
+                                                            <div
+                                                                onClick={() => goToProfile(user.userName)}
+                                                                className="cursor-pointer text-xs sm:text-sm md:text-base font-medium"
                                                             >
-                                                                accept
-                                                            </button>
-                                                            <button
-                                                                onClick={() => rejectFriend(user.userId)}
-                                                                className="px-4 py-2 text-xs sm:text-sm md:text-base border rounded-md"
-                                                            >
-                                                                reject
-                                                            </button>
+                                                                {user.userName}
+                                                            </div>
+                                                            <div className="flex gap-x-3">
+                                                                <button
+                                                                    onClick={() => acceptFriend(user.userId, user.userName)}
+                                                                    className="px-4 py-2 text-xs sm:text-sm md:text-base border rounded-md"
+                                                                >
+                                                                    accept
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => rejectFriend(user.userId)}
+                                                                    className="px-4 py-2 text-xs sm:text-sm md:text-base border rounded-md"
+                                                                >
+                                                                    reject
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                ))
-                                            ) : (
-                                                <h1 className="text-xs sm:text-sm md:text-lg text-black text-center">
-                                                    no melos there-
-                                                </h1>
-                                            )}
-                                        </div>
-                                    </>
-                                )}
-                                {activeList === "your pending melos" && (
-                                    <>
-                                        <div className="flex flex-col gap-y-4">
-                                            {localToBeConfirmed?.length > 0 ? (
-                                                localToBeConfirmed.map((user, index) => (
-                                                    <div
-                                                        key={index}
-                                                        className="flex items-center justify-between gap-x-3 md:gap-x-6 p-4 border rounded-lg"
-                                                    >
+                                                    ))
+                                                ) : (
+                                                    <h1 className="text-xs sm:text-sm md:text-lg text-black text-center">
+                                                        no melos there-
+                                                    </h1>
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+                                    {activeList === "your pending melos" && (
+                                        <>
+                                            <div className="flex flex-col gap-y-4">
+                                                {localToBeConfirmed?.length > 0 ? (
+                                                    localToBeConfirmed.map((user, index) => (
                                                         <div
-                                                            onClick={() => goToProfile(user.userName)}
-                                                            className="cursor-pointer text-xs sm:text-sm md:text-base font-medium"
+                                                            key={index}
+                                                            className="flex items-center justify-between gap-x-3 md:gap-x-6 p-4 border rounded-lg"
                                                         >
-                                                            {user.userName}
-                                                        </div>
-                                                        <div className="flex gap-x-3">
-                                                            <button
-                                                                onClick={() => cancelFriendRequest(user.userId)}
-                                                                className="px-4 py-2 text-xs sm:text-sm md:text-base border rounded-md"
+                                                            <div
+                                                                onClick={() => goToProfile(user.userName)}
+                                                                className="cursor-pointer text-xs sm:text-sm md:text-base font-medium"
                                                             >
-                                                                cancel request
-                                                            </button>
+                                                                {user.userName}
+                                                            </div>
+                                                            <div className="flex gap-x-3">
+                                                                <button
+                                                                    onClick={() => cancelFriendRequest(user.userId)}
+                                                                    className="px-4 py-2 text-xs sm:text-sm md:text-base border rounded-md"
+                                                                >
+                                                                    cancel request
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                ))
-                                            ) : (
-                                                <h1 className="text-xs sm:text-sm md:text-lg text-black text-center">
-                                                    no pending melo request there-
-                                                </h1>
-                                            )}
-                                        </div>
-                                    </>
-                                )}
-                                {activeList === "unfav melos" && (
-                                    <>
-                                        <div className="flex flex-col gap-y-4">
-                                            {localBlockedUsers?.length > 0 ? (
-                                                localBlockedUsers.map((user, index) => (
-                                                    <div
-                                                        key={index}
-                                                        className="flex items-center justify-between gap-x-3 md:gap-x-6 p-4 border rounded-lg"
-                                                    >
+                                                    ))
+                                                ) : (
+                                                    <h1 className="text-xs sm:text-sm md:text-lg text-black text-center">
+                                                        no pending melo request there-
+                                                    </h1>
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+                                    {activeList === "unfav melos" && (
+                                        <>
+                                            <div className="flex flex-col gap-y-4">
+                                                {localBlockedUsers?.length > 0 ? (
+                                                    localBlockedUsers.map((user, index) => (
                                                         <div
-                                                            onClick={() => goToProfile(user.userName)}
-                                                            className="cursor-pointer text-xs sm:text-sm md:text-base font-medium"
+                                                            key={index}
+                                                            className="flex items-center justify-between gap-x-3 md:gap-x-6 p-4 border rounded-lg"
                                                         >
-                                                            {user.userName}
-                                                        </div>
-                                                        <div className="flex gap-x-3">
-                                                            <button
-                                                                onClick={() => unblockUser(user.userId)}
-                                                                className="px-4 py-2 text-xs sm:text-sm md:text-base border rounded-md"
+                                                            <div
+                                                                onClick={() => goToProfile(user.userName)}
+                                                                className="cursor-pointer text-xs sm:text-sm md:text-base font-medium"
                                                             >
-                                                                unblock
-                                                            </button>
+                                                                {user.userName}
+                                                            </div>
+                                                            <div className="flex gap-x-3">
+                                                                <button
+                                                                    onClick={() => unblockUser(user.userId)}
+                                                                    className="px-4 py-2 text-xs sm:text-sm md:text-base border rounded-md"
+                                                                >
+                                                                    unblock
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                ))
-                                            ) : (
-                                                <h1 className="text-xs sm:text-sm md:text-lg text-black text-center">
-                                                    no melos there-
-                                                </h1>
-                                            )}
-                                        </div>
-                                    </>
-                                )}
+                                                    ))
+                                                ) : (
+                                                    <h1 className="text-xs sm:text-sm md:text-lg text-black text-center">
+                                                        no melos there-
+                                                    </h1>
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </>
                 )}
-
-                <button onClick={handleLogout} disabled={isLoading} className={`bottom-0 absolute border text-base px-2 py-2 rounded-lg lg:text-xl md:text-xl left-[50%] items-center ${isLoading ? 'cursor-not-allowed' : ''}`}>logout</button>
+                <button onClick={handleLogout} disabled={isLoading} className={` h-fit absolute bottom-0 left-[40%] border text-base px-12 py-2 rounded-lg lg:text-xl md:text-xl items-center ${isLoading ? 'cursor-not-allowed' : ''}`}>logout</button>
             </div>
         </>
     );

@@ -7,6 +7,8 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../assets/firebaseConfig';
 import back from '../../images/back.png';
 import CrptoJS from 'crypto-js';
+import EmojiPicker from 'emoji-picker-react';
+
 
 export default function Chat() {
   const [socket, setSocket] = useState(null);
@@ -15,7 +17,10 @@ export default function Chat() {
   const [lastMessageDetails, setLastMessageDetails] = useState(null);
   const [lastMessageSeenByBothUsersDetails, setLastMessageSeenByBothUsersDetails] = useState(null);
   const [isTyping, setIsTyping] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  
   const messagesEndRef = useRef(null);
+  const emojiPickerRef = useRef(null)
 
   const [receiverPfp, setReceiverPfp] = useState('');
   const [receiverUserName, setReceiverUserName] = useState('');
@@ -140,6 +145,29 @@ export default function Chat() {
     }
   };
 
+  const handleEmojiClick = (emojiObject) => {
+    setNewMessage((prevMessage) => prevMessage + emojiObject.emoji);
+    setShowEmojiPicker(false);
+  }
+
+  const handleClickOutside = (event) => {
+    if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
+      setShowEmojiPicker(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showEmojiPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showEmojiPicker])
+
   const handleBack = () => {
     navigate('/chatlist')
   };
@@ -222,21 +250,27 @@ export default function Chat() {
       </div>
 
 
-      <div className="flex flex-col justify-end">
+      <div className="absolute top-4 left-[20%] md:left-[20%] lg:left-[10%] bg-transparent flex flex-col justify-end">
         {isTyping && 'vocalizing...'}
       </div>
 
 
-      <div className="send-text flex w-full mt-auto">
+      <div className="send-text gap-x-2 flex w-full mt-auto">
         <input
           onChange={(e) => setNewMessage(e.target.value)}
           value={newMessage}
           placeholder="type some melodies?"
           type="text"
-          className="w-full py-2"
+          className="w-full px-2 py-2"
           onKeyDown={handleKeyDown}
           onKeyDownCapture={handleTyping}
         />
+        <button
+          onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+          className="ml-2 p-2 rounded-full shadow-md"
+        >
+          😀
+        </button>
         <button
           onClick={handleSendMessage}
           disabled={!newMessage.trim()}
@@ -245,6 +279,12 @@ export default function Chat() {
           sing
         </button>
       </div>
+      {showEmojiPicker && (
+        <div ref={emojiPickerRef} className="absolute bottom-20 right-10">
+          <EmojiPicker onEmojiClick={handleEmojiClick} />
+        </div>
+      )}
+
     </div>
   );
 }

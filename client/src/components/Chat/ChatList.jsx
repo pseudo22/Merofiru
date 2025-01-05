@@ -51,7 +51,7 @@ export default function ChatList() {
     }
 
     async function openChat(otherUserId) {
-
+        setLoading(true);
         if(switchTo === 'match') {
         const otherUserRef = doc(db, 'users', otherUserId);
         const otherUserSnap = await getDoc(otherUserRef);
@@ -63,6 +63,7 @@ export default function ChatList() {
                 const canChat = notAllowedUsers?.includes(userId);
                 if (canChat) {
                     toastRef.current.addToast('you are blocked sadly');
+                    setLoading(false);
                     return;
                 }
             }
@@ -72,6 +73,7 @@ export default function ChatList() {
 
             if (!isTopMatch) {
                 toastRef.current.addToast('you are not in the top matches on the other side, send a friend request instead?');
+                setLoading(false);
                 return;
             }
         }
@@ -81,6 +83,7 @@ export default function ChatList() {
             const urlSafeEncryptedUserId = encryptedUserId.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 
             navigate(`/chat/${urlSafeEncryptedUserId}`);
+            setLoading(false);
     }
 
     function openProfile(otherUserName) {
@@ -90,8 +93,8 @@ export default function ChatList() {
     return (
         <>
             <ToastContainer ref={toastRef} />
-            <div className="layout absolute flex flex-col gap-y-4 top-1/2 left-1/2 transform -translate-x-1/2 p-4 -translate-y-1/2 rounded-lg shadow-lg md:w-[80%] w-full h-[77%] md:h-[80%]">
-                <div className="flex justify-between items-center">
+            <div className="layout absolute flex flex-col gap-y-4 top-1/2 left-1/2 transform -translate-x-1/2 p-4 -translate-y-1/2 rounded-lg shadow-lg w-full md:w-[60%] h-[77%] md:h-[80%]">
+                <div className="flex  justify-between items-center">
                     <h1 className="text-2xl text-white md:text-3xl font-semibold">
                         {switchTo === 'match' ? 'your matches' : 'your melos'}
                     </h1>
@@ -115,27 +118,28 @@ export default function ChatList() {
                             >
                                 <div className="flex gap-8 items-end">
                                     <p className="font-semibold text-lg md:text-xl">{user.userName}</p>
-                                    {switchTo === 'match' ? (<p className="text-sm md:text-base">Melo score: {user.similarity}</p>) : ('')}
+                                    {switchTo === 'match' ? (<p className="text-sm md:text-base">melo score: {user.similarity}</p>) : ('')}
                                 </div>
                                 <div className="flex gap-4">
                                     <button
                                         onClick={() => openChat(user.userId)}
+                                        disabled={loading}
                                         className="text-sm bg-[#5cc6abeb] text-white md:text-base px-4 py-2 rounded-lg border"
                                     >
-                                        Chat
+                                        {loading ? 'opening chat-' : 'chat'}
                                     </button>
                                     <button
                                         onClick={() => openProfile(user.userName)}
-                                        className="text-sm bg-[#5cc6abeb] text-white md:text-base px-4 py-2 rounded-lg border"
+                                        className="text-sm bg-[#5cc6abeb] px-2 py-2 text-white md:text-base rounded-lg border"
                                     >
-                                        View Profile
+                                        view profile
                                     </button>
                                     {switchTo === 'match' && (
                                         <img
-                                            title="Remove"
+                                            title="remove friend"
                                             onClick={() => removeFromSimilarList(user.userId)}
                                             className="cursor-pointer rounded-full"
-                                            height={20}
+                                            height={30}
                                             width={40}
                                             src={removefriend}
                                             alt="Remove"
@@ -155,3 +159,8 @@ export default function ChatList() {
 
     );
 }
+
+
+
+// redux m save kraa lo last message jo jo current user k not seeen h, bs last message
+// and jo not seen h, unke upr ek cheez jo btaye ki not seen h

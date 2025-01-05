@@ -2,6 +2,7 @@ import { Server } from 'socket.io';
 import { db } from '../utils/firebaseAdmin.js';
 import { authenticateSocket } from '../middlewares/auth.middleware.js';
 
+
 export function setupSocket(server) {
     const io = new Server(server, {
         cors: {
@@ -13,6 +14,7 @@ export function setupSocket(server) {
 
     const userSocketsRef = db.collection('userSockets');
     const chatRef = db.collection('chats');
+    const userRef = db.collection('users');
 
     // middleware to authenticate socket
     io.use(authenticateSocket);
@@ -57,16 +59,16 @@ export function setupSocket(server) {
                 const receiverSocketSnap = await userSocketsRef.doc(receiverId).get();
                 const receiverCurrentRoom = receiverSocketSnap.data()?.roomId || null;
 
+                if (!receiverSocketSnap.exists) {
+                    throw new Error('receiver socket not found');
+                }
+
                 const updatedSeenByUsers = receiverCurrentRoom === chatDocId
                     ? [senderId, receiverId]
                     : [senderId];
 
                 io.to(chatDocId).emit('receive-message', {
-                    id: messageRef.id,
-                    senderId,
-                    receiverId,
-                    message,
-                    timestamp,
+                    ...newMessageData,
                     seenByUsers: updatedSeenByUsers,
                 });
 
@@ -74,15 +76,12 @@ export function setupSocket(server) {
                     ...newMessageData , seenByUsers : updatedSeenByUsers
                 })
 
+
                 if (updatedSeenByUsers.length === 2){
                     await chatDocRef.set(
                         {
                             lastMessageSeenByBothUsers: {
-                                id: messageRef.id,
-                                senderId,
-                                receiverId,
-                                message,
-                                timestamp,
+                                ...newMessageData,
                                 seenByUsers: updatedSeenByUsers,
                             }
                         },
@@ -93,11 +92,7 @@ export function setupSocket(server) {
                 await chatDocRef.set(
                     {
                         lastMessage: {
-                            id: messageRef.id,
-                            senderId,
-                            receiverId,
-                            message,
-                            timestamp,
+                            ...newMessageData,
                             seenByUsers: updatedSeenByUsers,
                         }
                     },

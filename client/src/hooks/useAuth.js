@@ -9,13 +9,18 @@ import { setFriends, clearFriends } from '../features/friendsSlice';
 import { useDispatch } from 'react-redux';
 import { db } from '../assets/firebaseConfig';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import {ApiClient} from '../assets/axios.js'
+
 
 const useAuth = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
+  const [lastActivityTime, setLastActivityTime] = useState(Date.now());
+  const idleTimeout = 15 * 60 * 1000;
 
   useEffect(() => {
     let currentUser = null;
+    let inactivityTimer = null;
 
     const updatePresence = async (user, presence) => {
       if (user) {
@@ -27,6 +32,7 @@ const useAuth = () => {
         }
       }
     };
+
 
     const handleAuthStateChange = async (user) => {
       if (user && navigator.onLine) {
@@ -58,6 +64,7 @@ const useAuth = () => {
               })
             );
 
+
             dispatch(
               setUser({
                 userId: user.uid,
@@ -69,9 +76,9 @@ const useAuth = () => {
             );
             dispatch(setToken({ token }));
             dispatch(setUserGenres({ selectedGenres: genres.filter((genre) => genre !== null) }));
-            dispatch(setTopMatches({ topMatches  }));
+            dispatch(setTopMatches({ topMatches }));
             dispatch(setFriends({ friends }));
-            dispatch(setToBeConfirmed({ toBeConfirmed : userData?.toBeConfirmed || [] })); 
+            dispatch(setToBeConfirmed({ toBeConfirmed : userData?.toBeConfirmed || [] }));
             dispatch(setBlockedUsers({ blockedUsers : userData?.blockedUsers || [] }));
             dispatch(setPendingRequests({ pendingRequests : userData?.pendingRequests || [] , pendingRequestsCount : userData?.pendingRequests?.length || 0 }));
 
@@ -93,21 +100,47 @@ const useAuth = () => {
       setLoading(false);
     };
 
-    const unsubscribe = onAuthStateChanged(auth, handleAuthStateChange);
-
     const handleBeforeUnload = async () => {
       if (currentUser) {
         await updatePresence(currentUser, false);
       }
     };
 
+
+    const resetInactivityTimer = () => {
+      setLastActivityTime(Date.now());
+    };
+
+    const checkInactivity = () => {
+      const timeElapsed = Date.now() - lastActivityTime;
+      if (timeElapsed >= idleTimeout) {
+
+        if (currentUser) {
+          updatePresence(currentUser, false);
+          dispatch(clearUser());
+          dispatch(clearTopMatches());
+          dispatch(clearFriends());
+        }
+      }
+    };
+
+    window.addEventListener('mousemove', resetInactivityTimer);
+    window.addEventListener('keydown', resetInactivityTimer);
+
+    inactivityTimer = setInterval(checkInactivity, 10000); 
+
+    const unsubscribe = onAuthStateChanged(auth, handleAuthStateChange);
+
     window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
       unsubscribe();
+      clearInterval(inactivityTimer);
+      window.removeEventListener('mousemove', resetInactivityTimer);
+      window.removeEventListener('keydown', resetInactivityTimer);
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [dispatch]);
+  }, [dispatch, lastActivityTime]);
 
   return { loading };
 };
