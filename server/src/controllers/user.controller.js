@@ -244,6 +244,9 @@ const confirmFriendRequest = asyncHandler(async (req, res) => {
             senderData.toBeConfirmed = senderData.toBeConfirmed || [];
             receiverData.pendingRequests = receiverData.pendingRequests || [];
 
+            receiverData.toBeConfirmed = senderData.toBeConfirmed || [];
+            senderData.pendingRequests = receiverData.pendingRequests || [];
+
             senderData.friends = senderData.friends || [];
             receiverData.friends = receiverData.friends || [];
 
@@ -264,6 +267,9 @@ const confirmFriendRequest = asyncHandler(async (req, res) => {
             // filter pending requests
             senderData.toBeConfirmed = senderData.toBeConfirmed.filter(request => request.userId !== receiverId);
             receiverData.pendingRequests = receiverData.pendingRequests.filter(request => request.userId !== senderId);
+
+            senderData.pendingRequests = senderData.pendingRequests.filter(req => req.userId !== receiverId)
+            receiverData.pendingRequests = receiverData.pendingRequests.filter(req => req.userId !== senderId)
 
             // add friends
             senderData.friends.push({ userId: receiverId, userName: receiverName });
