@@ -6,7 +6,7 @@ import { ApiClient } from '../../assets/axios';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../assets/firebaseConfig';
 import back from '../../images/back.png';
-import CrptoJS from 'crypto-js';
+import CryptoJS from 'crypto-js';
 import EmojiPicker from 'emoji-picker-react';
 
 
@@ -15,7 +15,6 @@ export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [lastMessageDetails, setLastMessageDetails] = useState(null);
-  const [lastMessageSeenByBothUsersDetails, setLastMessageSeenByBothUsersDetails] = useState(null);
   const [isTyping, setIsTyping] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   
@@ -30,7 +29,7 @@ export default function Chat() {
   const encryptedUserId = params.id;
 
   const base64String = encryptedUserId.replace(/-/g, '+').replace(/_/g, '/')
-  const receiverId = CrptoJS.AES.decrypt(base64String, import.meta.env.VITE_SECRET_KEY).toString(CrptoJS.enc.Utf8);
+  const receiverId = CryptoJS.AES.decrypt(base64String, import.meta.env.VITE_SECRET_KEY).toString(CryptoJS.enc.Utf8);
 
   const token = useSelector((state) => state.user.token);
   const userId = useSelector((state) => state.user.userId);
@@ -70,10 +69,9 @@ export default function Chat() {
     const fetchMessages = async () => {
       try {
         const response = await ApiClient.get(`/api/messages/${userId}/${receiverId}`);
-        const { lastMessageDetails, chats , lastMessageSeenByBothUsersDetails } = response.data?.data;
+        const { lastMessageDetails, chats} = response.data?.data;
         setMessages(chats || []);
         setLastMessageDetails(lastMessageDetails || null);
-        setLastMessageSeenByBothUsersDetails(lastMessageSeenByBothUsersDetails || null);
       } catch (error) {
         console.error(error?.response?.data.message);
       } finally {
@@ -82,7 +80,7 @@ export default function Chat() {
     };
 
     fetchMessages();
-  }, [userId, receiverId, token]);
+  }, [userId, receiverId]);
 
   useEffect(() => {
     const createSocket = async () => {
@@ -173,7 +171,7 @@ export default function Chat() {
   };
 
   const getMessageBackground = (message) => {
-    if (lastMessageDetails && lastMessageDetails?.id === message.id && lastMessageDetails?.seenByBoth || lastMessageSeenByBothUsersDetails && lastMessageSeenByBothUsersDetails?.id === message.id) {
+    if (lastMessageDetails && lastMessageDetails?.id === message.id && lastMessageDetails?.seenByBoth) {
       return 'bg-blue-500';
     }
     const isSeenByBoth =

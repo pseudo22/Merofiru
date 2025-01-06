@@ -14,7 +14,6 @@ function Genres() {
     const [genres, setGenres] = useState([]);
     const [localSelectedGenres, setLocalSelectedGenres] = useState(selectedGenres)
     const [loading, setLoading] = useState(false);
-    const [navigating, setNavigating] = useState(false);
 
 
     const dispatch = useDispatch()

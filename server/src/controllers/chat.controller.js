@@ -31,12 +31,6 @@ const getMessages = asyncHandler(async (req, res) => {
             seenByBoth : lastMessage?.seenByUsers.length == 2
         }
 
-        const lastMessageSeenByBothUsers = chatDoc.data().lastMessageSeenByBothUsers || null;
-        const lastMessageSeenByBothUsersDetails = {
-            id : lastMessageSeenByBothUsers?.id,
-            seenByBoth : lastMessageSeenByBothUsers?.seenByUsers.length == 2
-        }
-
         
         const messages = messagesSnapshot.docs.map((doc) => doc.data());
 
@@ -45,7 +39,7 @@ const getMessages = asyncHandler(async (req, res) => {
         }
 
         res.status(200).json(
-            new ApiResponse(200, { lastMessageDetails, lastMessageSeenByBothUsersDetails, chats: messages.reverse() }, 'messages fetched')
+            new ApiResponse(200, { lastMessageDetails, chats: messages.reverse() }, 'messages fetched')
         );
     } catch (error) {
         res.status(500).json(new ApiResponse(404, '', 'error while fetching messages'));

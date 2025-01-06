@@ -76,19 +76,6 @@ export function setupSocket(server) {
                     ...newMessageData , seenByUsers : updatedSeenByUsers
                 })
 
-
-                if (updatedSeenByUsers.length === 2){
-                    await chatDocRef.set(
-                        {
-                            lastMessageSeenByBothUsers: {
-                                ...newMessageData,
-                                seenByUsers: updatedSeenByUsers,
-                            }
-                        },
-                        { merge: true }
-                    );
-                }
-
                 await chatDocRef.set(
                     {
                         lastMessage: {

@@ -16,6 +16,7 @@ gsap.config({ nullTargetWarn: false })
 
 export default function ProfileSetting() {
     const { userId, userName, profile, blockedUsers, pendingRequests, pendingRequestsCount, toBeConfirmed } = useSelector((state) => state.user);
+    
     const { friends } = useSelector((state) => state.friends);
 
     const [activeList, setActiveList] = useState(null);

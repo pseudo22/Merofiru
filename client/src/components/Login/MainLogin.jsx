@@ -25,7 +25,6 @@ const LoginPage = () => {
       const response = await signInWithEmailAndPassword(auth, email, password)
 
         .then(() => {
-
           setLoading(false)
           setSuccess(true)
           toastRef.current.addToast('welcome merofiru')

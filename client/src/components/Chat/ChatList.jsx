@@ -52,43 +52,45 @@ export default function ChatList() {
 
     async function openChat(otherUserId) {
         setLoading(true);
-        if(switchTo === 'match') {
-        const otherUserRef = doc(db, 'users', otherUserId);
-        const otherUserSnap = await getDoc(otherUserRef);
+        if (switchTo === 'match') {
+            const otherUserRef = doc(db, 'users', otherUserId);
+            const otherUserSnap = await getDoc(otherUserRef);
 
-        if (otherUserSnap.exists()) {
-            const notAllowedUsers = otherUserSnap.data()?.notAllowedUsers || [];
+            if (otherUserSnap.exists()) {
+                const notAllowedUsers = otherUserSnap.data()?.notAllowedUsers || [];
 
-            if (notAllowedUsers) {
-                const canChat = notAllowedUsers?.includes(userId);
-                if (canChat) {
-                    toastRef.current.addToast('you are blocked sadly');
+                if (notAllowedUsers) {
+                    const canChat = notAllowedUsers?.includes(userId);
+                    if (canChat) {
+                        toastRef.current.addToast('you are blocked sadly');
+                        setLoading(false);
+                        return;
+                    }
+                }
+
+                const topMatches = otherUserSnap.data()?.topMatches || [];
+                const isTopMatch = topMatches.some((user) => user.userId === userId);
+
+                if (!isTopMatch) {
+                    toastRef.current.addToast('you are not in the top matches on the other side, send a friend request instead?');
                     setLoading(false);
                     return;
                 }
             }
 
-            const topMatches = otherUserSnap.data()?.topMatches || [];
-            const isTopMatch = topMatches.some((user) => user.userId === userId);
-
-            if (!isTopMatch) {
-                toastRef.current.addToast('you are not in the top matches on the other side, send a friend request instead?');
-                setLoading(false);
-                return;
-            }
         }
-            
-    }
-            const encryptedUserId =  CryptoJS.AES.encrypt(otherUserId, import.meta.env.VITE_SECRET_KEY).toString()
-            const urlSafeEncryptedUserId = encryptedUserId.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+        const encryptedUserId = CryptoJS.AES.encrypt(otherUserId, import.meta.env.VITE_SECRET_KEY).toString()
+        const urlSafeEncryptedUserId = encryptedUserId.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 
-            navigate(`/chat/${urlSafeEncryptedUserId}`);
-            setLoading(false);
+        navigate(`/chat/${urlSafeEncryptedUserId}`);
+        setLoading(false);
     }
 
     function openProfile(otherUserName) {
         navigate(`/user/profile/${otherUserName}`);
     }
+
+    const goFindSomeMatches = () => navigate('/user/genre-matching')
 
     return (
         <>
@@ -110,7 +112,8 @@ export default function ChatList() {
 
                 <div className="flex-grow overflow-y-auto">
                     {loading && <p className="text-center text-sm md:text-base">loading...</p>}
-                    {!loading && userList?.length > 0 && userList ? (
+
+                    {!loading && userList?.length > 0 ? (
                         userList.map((user, id) => (
                             <div
                                 key={id}
@@ -118,7 +121,7 @@ export default function ChatList() {
                             >
                                 <div className="flex gap-8 items-end">
                                     <p className="font-semibold text-lg md:text-xl">{user.userName}</p>
-                                    {switchTo === 'match' ? (<p className="text-sm md:text-base">melo score: {user.similarity}</p>) : ('')}
+                                    {switchTo === 'match' && <p className="text-sm md:text-base">melo score: {user.similarity}</p>}
                                 </div>
                                 <div className="flex gap-4">
                                     <button
@@ -150,10 +153,23 @@ export default function ChatList() {
                         ))
                     ) : (
                         !loading && (
-                            <p className="text-center text-sm md:text-base">no melos found, try finding some?</p>
+                            <div className="flex-grow overflow-y-auto flex items-center justify-center relative">
+                                {switchTo === 'match' && userList?.length === 0 ? (
+                                    <button
+                                        onClick={goFindSomeMatches}
+                                        className="text-sm bg-[#5cc6abeb] px-2 py-2 text-white md:text-base rounded-lg border"
+                                    >
+                                        go find some matches!!
+                                    </button>
+                                ) : (
+                                    <p className="text-center text-sm md:text-base">no melos found, try finding some?</p>
+                                )}
+                            </div>
+
                         )
                     )}
                 </div>
+
             </div>
         </>
 
