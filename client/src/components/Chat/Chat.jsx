@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams  } from 'react-router-dom';
 import { initializeSocket } from '../../assets/socketClient';
 import { ApiClient } from '../../assets/axios';
 import { doc, getDoc } from 'firebase/firestore';
@@ -17,7 +17,7 @@ export default function Chat() {
   const [lastMessageDetails, setLastMessageDetails] = useState(null);
   const [isTyping, setIsTyping] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
-  
+
   const messagesEndRef = useRef(null);
   const emojiPickerRef = useRef(null)
 
@@ -69,7 +69,7 @@ export default function Chat() {
     const fetchMessages = async () => {
       try {
         const response = await ApiClient.get(`/api/messages/${userId}/${receiverId}`);
-        const { lastMessageDetails, chats} = response.data?.data;
+        const { lastMessageDetails, chats } = response.data?.data;
         setMessages(chats || []);
         setLastMessageDetails(lastMessageDetails || null);
       } catch (error) {
@@ -121,6 +121,15 @@ export default function Chat() {
 
     createSocket();
   }, [token, userId, chatDocId]);
+
+  useEffect(() => {
+    return (() => {
+      if (socket) {
+        socket.disconnect();
+        setSocket(null);
+      }
+    });
+  }, [navigate, socket])
 
   const handleSendMessage = () => {
     if (socket && newMessage.trim()) {
@@ -187,7 +196,7 @@ export default function Chat() {
   };
 
   const handleKeyDown = (event) => {
-    if (event.key === 'Enter' && !event.shiftKey) { 
+    if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault()
       handleSendMessage()
     }
