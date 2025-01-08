@@ -1,6 +1,6 @@
 # Merofiru
 
-Merofiru is a music-chat application designed for melophiles, connecting users with similar music tastes to engage in conversations. The project features, one-on-one messaging, matches users according to the users selected genres and future integration with the Spotify API.
+Merofiru is a music-chat application designed for melophiles, connecting users with similar music tastes to engage in conversations. The project features, one-on-one messaging, matches users according to the users selected genres
 
 ## Features
 
