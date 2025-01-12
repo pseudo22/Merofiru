@@ -4,6 +4,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { db, firebaseAdmin } from "../utils/firebaseAdmin.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import CryptoJS from 'crypto-js'
+import { log } from "console";
 
 
 
@@ -36,8 +37,6 @@ const registerUser = asyncHandler(async (req, res) => {
         
         const decryptedPassword = CryptoJS.AES.decrypt(password , process.env.SECRET_KEY).toString(CryptoJS.enc.Utf8)
         
-        console.log(decryptedPassword);
-        
         let firebaseUser;
         try {
             firebaseUser = await firebaseAdmin.auth().createUser({
@@ -67,10 +66,10 @@ const registerUser = asyncHandler(async (req, res) => {
         }
     
         const newUser = await db.collection('users').doc(firebaseUser.uid).get()
-    
-    
+
         return res.status(200).json(new ApiResponse(200, { user: newUser }, 'user created successfully'));
     } catch (error) {
+        console.log(error); 
         return res.status(500).json(new ApiResponse(500, '', 'error while creating user'));
     }
    
