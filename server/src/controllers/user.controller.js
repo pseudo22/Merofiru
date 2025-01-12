@@ -36,7 +36,6 @@ const registerUser = asyncHandler(async (req, res) => {
         }
         
         const decryptedPassword = CryptoJS.AES.decrypt(password , process.env.SECRET_KEY).toString(CryptoJS.enc.Utf8)
-        
         let firebaseUser;
         try {
             firebaseUser = await firebaseAdmin.auth().createUser({

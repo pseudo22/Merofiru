@@ -37,8 +37,8 @@ function Register() {
       return
     }
 
-    if (password.length < 6) {
-      setError('password is length less than 6 characters')
+    if (password.length < 7) {
+      setError('password is length less than 7 characters')
       return
     }
     setError('')
