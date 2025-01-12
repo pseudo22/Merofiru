@@ -36,7 +36,10 @@ const registerUser = asyncHandler(async (req, res) => {
         }
         
         const bytes = CryptoJS.AES.decrypt(password , process.env.SECRET_KEY)
-        const decryptedPassword = bytes.toString(CryptoJS.enc.Utf8)
+        const decryptedPassword = String(bytes.toString(CryptoJS.enc.Utf8))
+
+        console.log(decryptedPassword.length , typeof decryptedPassword);
+        
 
         let firebaseUser;
         try {
