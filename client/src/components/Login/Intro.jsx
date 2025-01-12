@@ -7,6 +7,7 @@ import p1 from '../../images/default.jpg'
 import { db } from "../../assets/firebaseConfig"
 import ToastContainer from "../Toast/ToastContainer"
 import { collection, where, getDocs, query } from "firebase/firestore"
+import CryptoJS from 'crypto-js'
 
 export default function Intro() {
 
@@ -88,7 +89,8 @@ export default function Intro() {
       const password = location.state?.password
       if (email && password) {
         formData.append('email', email);
-        formData.append('password', password)
+        const encryptedPassword = CryptoJS.AES.encrypt(password , import.meta.env.VITE_SECRET_KEY).toString()
+        formData.append('password', encryptedPassword)
       } else {
         toast.error('email or password missing')
       }

@@ -59,9 +59,6 @@ export function setupSocket(server) {
                 const receiverSocketSnap = await userSocketsRef.doc(receiverId).get();
                 const receiverCurrentRoom = receiverSocketSnap.data()?.roomId || null;
 
-                if (!receiverSocketSnap.exists) {
-                    throw new Error('receiver socket not found');
-                }
 
                 const updatedSeenByUsers = receiverCurrentRoom === chatDocId
                     ? [senderId, receiverId]

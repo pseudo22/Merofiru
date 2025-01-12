@@ -3,7 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { db, firebaseAdmin } from "../utils/firebaseAdmin.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { log } from "console";
+import CryptoJS from 'crypto-js'
 
 
 
@@ -33,11 +33,15 @@ const registerUser = asyncHandler(async (req, res) => {
             console.error("Error uploading to Cloudinary:", error);
             return res.status(500).json(new ApiResponse(500, "", "error while uploading profile picture"));
         }
-    
+        
+        const decryptedPassword = CryptoJS.AES.decrypt(password , process.env.SECRET_KEY).toString(CryptoJS.enc.Utf8)
+        
+        console.log(decryptedPassword);
+        
         let firebaseUser;
         try {
             firebaseUser = await firebaseAdmin.auth().createUser({
-                email, password, displayName
+                email, password : decryptedPassword, displayName
             });
         } catch (error) {
             console.log(error);
@@ -269,15 +273,22 @@ const confirmFriendRequest = asyncHandler(async (req, res) => {
             receiverData.pendingRequests = receiverData.pendingRequests.filter(request => request.userId !== senderId);
 
             senderData.pendingRequests = senderData.pendingRequests.filter(req => req.userId !== receiverId)
-            receiverData.pendingRequests = receiverData.pendingRequests.filter(req => req.userId !== senderId)
+            receiverData.toBeConfirmed = receiverData.toBeConfirmed.filter(req => req.userId !== senderId)
+
+            senderData.topMatches = senderData.topMatches.filter(req => req.userId !== receiverId)
+            receiverData.topMatches = receiverData.topMatches.filter(req => req.userId !== senderId)
+
 
             // add friends
             senderData.friends.push({ userId: receiverId, userName: receiverName });
             receiverData.friends.push({ userId: senderId, userName: senderName });
 
+            console.log(senderData.friends , receiverData.friends);
+            
+
             // update both sender and receiver
-            await senderRef.set({ toBeConfirmed : senderData.toBeConfirmed  , friends: senderData.friends }, { merge: true });
-            await receiverRef.set({ pendingRequests: receiverData.pendingRequests ,friends: receiverData.friends }, { merge: true });
+            await senderRef.set({ toBeConfirmed : senderData.toBeConfirmed  , pendingRequests: senderData.pendingRequests, friends: senderData.friends }, { merge: true });
+            await receiverRef.set({ pendingRequests: receiverData.pendingRequests , toBeConfirmed : receiverData.toBeConfirmed , friends: receiverData.friends }, { merge: true });
 
             return res.status(200).json(new ApiResponse(200, '', 'melo added successfully'));
         } else {
