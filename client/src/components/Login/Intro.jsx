@@ -89,8 +89,7 @@ export default function Intro() {
       const password = location.state?.password
       if (email && password) {
         formData.append('email', email);
-        const encryptedPassword = CryptoJS.AES.encrypt(password , import.meta.env.VITE_SECRET_KEY).toString()
-        formData.append('password', encryptedPassword)
+        formData.append('password', password)
       } else {
         toast.error('email or password missing')
       }

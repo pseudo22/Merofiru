@@ -4,9 +4,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { db, firebaseAdmin } from "../utils/firebaseAdmin.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import CryptoJS from 'crypto-js'
-import { log } from "console";
-
-
+import punycode from 'punycode'
 
 // const userCollection = db.collection('users')
 
@@ -34,17 +32,11 @@ const registerUser = asyncHandler(async (req, res) => {
             console.error("Error uploading to Cloudinary:", error);
             return res.status(500).json(new ApiResponse(500, "", "error while uploading profile picture"));
         }
-        
-        const bytes = CryptoJS.AES.decrypt(password , process.env.SECRET_KEY)
-        const decryptedPassword = String(bytes.toString(CryptoJS.enc.Utf8))
-
-        console.log(decryptedPassword.length , typeof decryptedPassword);
-        
 
         let firebaseUser;
         try {
             firebaseUser = await firebaseAdmin.auth().createUser({
-                email, password : decryptedPassword, displayName
+                email, password, displayName
             });
         } catch (error) {
             console.log(error);
