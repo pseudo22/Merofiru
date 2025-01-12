@@ -34,7 +34,7 @@ const registerUser = asyncHandler(async (req, res) => {
         let firebaseUser;
         try {
             firebaseUser = await firebaseAdmin.auth().createUser({
-                email, password, displayName
+                email: email, password:password
             });
         } catch (error) {
             console.log(error);
