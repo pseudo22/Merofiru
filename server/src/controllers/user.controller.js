@@ -3,8 +3,6 @@ import { ApiError } from "../utils/ApiError.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { db, firebaseAdmin } from "../utils/firebaseAdmin.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import CryptoJS from 'crypto-js'
-import punycode from 'punycode'
 
 // const userCollection = db.collection('users')
 
