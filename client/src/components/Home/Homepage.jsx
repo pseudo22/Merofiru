@@ -37,7 +37,7 @@ export default function HomePage() {
 
     return (
         <>
-    <div className="absolute flex flex-col gap-y-4 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 rounded-lg bg-[#CCD0CF] shadow-lg w-[90%] max-w-4xl md:w-[80%] lg:w-[70%] h-fit max-h-[90%]">
+    <div className="absolute flex flex-col gap-y-4 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 rounded-lg bg-[#CCD0CF] shadow-lg w-[90%] max-w-4xl md:w-[80%] lg:w-[70%] max-h-[90%]">
         {topGenre && (
             <div className="top-genre-details w-full h-full">
                 <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-[#4c8779] mb-2 font-semibold">
