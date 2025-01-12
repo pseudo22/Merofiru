@@ -8,10 +8,8 @@ import alreadyfriends from '../../images/friends.png';
 import block from '../../images/block.png';
 import pending from '../../images/pending.png';
 import { setToBeConfirmed, setBlockedUsers } from '../../features/userSlice.js';
-import { auth } from "../../assets/firebaseConfig.js";
 
-
-export default function Profile({ canUpdate, presence, pfp, userName, bio, genres, searchedUserId }) {
+export default function Profile({ canUpdate, presence, pfp, userName, bio, genres, searchedUserId, spotifyConnected}) {
 
 
 
@@ -170,150 +168,157 @@ export default function Profile({ canUpdate, presence, pfp, userName, bio, genre
 
     return (
         <>
-
             <ToastContainer ref={toastRef} />
-            <div className="absolute flex flex-col gap-y-4 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-lg bg-[#CCD0CF] shadow-lg w-full h-[60%] md:w-[50%] md:h-full ">
+            <div className="absolute flex flex-col gap-y-4 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-lg bg-[#CCD0CF] shadow-lg w-full h-[60%] sm:w-[70%] md:w-[50%] lg:w-[40%] xl:w-[30%] sm:h-[70%] md:h-full">
                 {isEditing ? (
-                    <>
-                        <div className="edit-view gap-y-2 top-12 relative flex flex-col items-center mt-5 h-[80%] w-full">
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                                className="mb-2"
-                                placeholder="change the pixels"
-                            />
-                            <textarea
-                                value={updatedBio}
-                                onChange={(e) => setUpdatedBio(e.target.value)}
-                                className="p-2 w-[80%] h-[30%] border rounded-md"
-                                placeholder="so what will be the new bio?"
-                            />
-                            <div className="flex gap-4 justify-between">
-                                <button
-                                    onClick={handleSave}
-                                    disabled={disabled}
-                                    className={` text-white px-2 rounded-md ${disabled ? 'cursor-not-allowed bg-[#5cc6ab80]' : 'bg-[#5cc6abeb]'}`}
-                                >
-                                    {loading ? 'updating-' : 'save!!'}
-                                </button>
-                                <button
-                                    onClick={handleCancel}
-                                    className="bg-[#5cc6abeb] text-white px-2 py-4 rounded-md "
-                                >
-                                    not sure?
-                                </button>
-                            </div>
+                    <div className="edit-view gap-y-2 top-12 relative flex flex-col items-center mt-5 h-[80%] w-full px-4 sm:px-6 md:px-8 lg:px-10">
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            className="mb-2 w-full sm:w-3/4 md:w-2/3"
+                            placeholder="change the pixels"
+                        />
+                        <textarea
+                            value={updatedBio}
+                            onChange={(e) => setUpdatedBio(e.target.value)}
+                            className="p-2 w-full sm:w-3/4 md:w-2/3 h-[30%] border rounded-md"
+                            placeholder="so what will be the new bio?"
+                        />
+                        <div className="flex flex-col sm:flex-row gap-4 justify-between">
                             <button
-                                onClick={handleNavigation}
-                                className="bg-[#5cc6abeb] text-white p-2 rounded-md  mt-4"
+                                onClick={handleSave}
+                                disabled={disabled}
+                                className={`text-white px-2 py-2 rounded-md ${disabled ? 'cursor-not-allowed bg-[#5cc6ab80]' : 'bg-[#5cc6abeb]'}`}
                             >
-                                edit genres
+                                {loading ? 'updating-' : 'save!!'}
+                            </button>
+                            <button
+                                onClick={handleCancel}
+                                className="bg-[#5cc6abeb] text-white px-2 py-4 rounded-md "
+                            >
+                                not sure?
                             </button>
                         </div>
-                    </>
+                        <button
+                            onClick={handleNavigation}
+                            className="bg-[#5cc6abeb] text-white p-2 rounded-md mt-4"
+                        >
+                            edit genres
+                        </button>
+                    </div>
                 ) : (
-                    <>
-                        <div className="profile-view relative flex flex-col items-center mt-5 h-[90%] w-full">
-                            <p className="absolute top-32 left-0 text-2xl md:text-4xl lg:text-4xl md:top-32">{userName}</p>
-                            {!canUpdate ? (<button disabled={disabled} onClick={findSimilarity} className={`absolute top-20 w-fit  border rounded-full px-2 py-1 md:px-2 md:py-4 lg:px-2 lg:py-4 ${disabled ? 'cursor-not-allowed' : ''}`}>{loading ? 'finding' : 'find similarity?'}</button>) : ('')}
-                            <div className="absolute right-0">
-                                <img src={pfp} className="relative w-24 h-24  rounded-full" alt="profile" />
+                    <div className="profile-view relative flex flex-col items-center mt-5 h-[90%] w-full px-4 sm:px-6 md:px-8 lg:px-10">
+                        <p className="absolute top-32 left-0 text-2xl sm:text-3xl md:text-4xl lg:text-4xl md:top-32">{userName}</p>
+                        {!canUpdate ? (
+                            <div className="flex justify-center mt-5 w-full">
+                                <button
+                                    disabled={disabled}
+                                    onClick={findSimilarity}
+                                    className={`border relative z-99 rounded-full px-2 py-1 md:px-2 md:py-4 lg:px-2 lg:py-4 ${disabled ? 'cursor-not-allowed' : ''}`}
+                                >
+                                    {loading ? 'finding' : 'find similarity?'}
+                                </button>
+                            </div>
+                        ) : null}
+                        <div className="absolute top-24 right-0">
+                            <div className="relative inline-block">
+                                <img
+                                    src={pfp}
+                                    className="h-10 w-10 lg:w-24 lg:h-24 md:h-12 md:w-12 rounded-full"
+                                    alt="profile"
+                                />
                                 {currentPresence ? (
                                     <div
-                                        title="online"
-                                        className="relative left-[70%] bottom-5 bg-green-500 h-4 w-4 rounded-full"
+                                        className="absolute right-0 bottom-0 bg-green-500 h-4 w-4 rounded-full"
                                     ></div>
                                 ) : (
                                     <div
                                         title="offline"
-                                        className="relative left-[70%] bottom-5 bg-gray-500 h-4 w-4 rounded-full"
+                                        className="absolute right-0 bottom-0 bg-gray-500 h-4 w-4 rounded-full"
                                     ></div>
                                 )}
-                                {!canUpdate && (
-                                    <div className="flex flex-row gap-6 mt-5">
-                                        {isBlocked ? (
-                                            <p className="text-red-500 font-bold">mero is blocked</p>
-                                        ) : isFriends ? (
-                                            <img className="cursor-pointer"
-                                                height={30}
-                                                width={30}
-                                                src={alreadyfriends}
-                                                alt="friends"
-                                                title="friends" />
-
-                                        ) : isPending ? (
-                                            <img
-                                                className="cursor-pointer"
-                                                height={20}
-                                                width={30}
-                                                src={pending}
-                                                alt="pending request"
-                                                title="pending request"
-                                            />
-                                        ) : (
-                                            <img
-                                                className="cursor-pointer"
-                                                title="add friend"
-                                                height={20}
-                                                width={30}
-                                                onClick={() => addFriend(searchedUserId)}
-                                                src={addfriend}
-                                                alt="add friend"
-                                            />
-                                        )}
-
-                                        {isBlocked ? null : (
-                                            <img
-                                                className="cursor-pointer"
-                                                height={20}
-                                                width={30}
-                                                src={block}
-                                                onClick={() => blockUser(searchedUserId)}
-                                                alt="block"
-                                                title="block"
-                                            />
-                                        )}
-                                    </div>
-                                )}
                             </div>
-                            {canUpdate ? (
-                                <p className="absolute top-48 left-0 text-lg md:text-2xl lg:text-2xl md:top-72">
-                                    you define yourself as <br /><span className="font-medium">{bio}</span>
-                                </p>
-                            ) : (
-                                <p className="absolute top-48 left-0 text-lg md:text-2xl lg:text-2xl">
-                                    merofiru is <br /> <span className="font-medium">{bio}</span>
-                                </p>
-                            )}
-                            <div className="absolute top-[70%]">
-                                <h2 className="text-xl md:text-3xl lg:text-3xl mt-6">personality spectrum</h2>
-                                <div className="flex flex-wrap gap-x-5 mt-3">
-                                    {genres.map((genre, id) => (
 
-                                        <span
-                                            key={id}
-                                            style={{ color: genre.color }}
-                                            className=" rounded-md text-lg md:text-xl lg:text-xl font-medium"
-                                        >
-                                            {genre.description}
-                                        </span>
-                                    ))}
+
+                            {!canUpdate && (
+                                <div className="flex flex-row gap-6 mt-5">
+                                    {isBlocked ? (
+                                        <p className="text-red-500 font-bold">mero is blocked</p>
+                                    ) : isFriends ? (
+                                        <img className="cursor-pointer" height={30} width={30} src={alreadyfriends} alt="friends" title="friends" />
+                                    ) : isPending ? (
+                                        <img
+                                            className="cursor-pointer"
+                                            height={20}
+                                            width={30}
+                                            src={pending}
+                                            alt="pending request"
+                                            title="pending request"
+                                        />
+                                    ) : (
+                                        <img
+                                            className="cursor-pointer"
+                                            title="add friend"
+                                            height={20}
+                                            width={30}
+                                            onClick={() => addFriend(searchedUserId)}
+                                            src={addfriend}
+                                            alt="add friend"
+                                        />
+                                    )}
+
+                                    {isBlocked ? null : (
+                                        <img
+                                            className="cursor-pointer"
+                                            height={20}
+                                            width={30}
+                                            src={block}
+                                            onClick={() => blockUser(searchedUserId)}
+                                            alt="block"
+                                            title="block"
+                                        />
+                                    )}
                                 </div>
-                            </div>
-                            {canUpdate && (
-                                <button
-                                    onClick={() => setIsEditing(true)}
-                                    className="bg-[#5cc6abeb] absolute top-1/2 right-0 mr-2 text-white p-2 rounded-md"
-                                >
-                                    edit profile
-                                </button>
                             )}
                         </div>
-                    </>
+                        {canUpdate ? (
+                            <p className="absolute top-48 left-0 text-lg sm:text-2xl md:text-2xl lg:text-2xl md:top-72">
+                                you define yourself as <br /><span className="font-medium">{bio}</span>
+                            </p>
+                        ) : (
+                            <p className="absolute top-48 left-0 text-lg sm:text-2xl md:text-2xl lg:text-2xl">
+                                merofiru is <br /> <span className="font-medium">{bio}</span>
+                            </p>
+                        )}
+
+                        <div className="absolute top-[70%]">
+                            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-3xl mt-6">personality spectrum</h2>
+                            <div className="flex flex-wrap gap-x-5 mt-3">
+                                {genres.map((genre, id) => (
+                                    <span
+                                        key={id}
+                                        style={{ color: genre.color }}
+                                        className="rounded-md text-lg sm:text-xl md:text-xl lg:text-xl font-medium"
+                                    >
+                                        {genre.description}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                        {canUpdate && (
+                            <button
+                                onClick={() => setIsEditing(true)}
+                                className="bg-[#5cc6abeb] absolute top-1/2 right-0 mr-2 text-white p-2 rounded-md"
+                            >
+                                edit profile
+                            </button>
+                        )}
+                    </div>
                 )}
             </div>
         </>
+
 
     );
 }
