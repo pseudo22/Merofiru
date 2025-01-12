@@ -35,7 +35,9 @@ const registerUser = asyncHandler(async (req, res) => {
             return res.status(500).json(new ApiResponse(500, "", "error while uploading profile picture"));
         }
         
-        const decryptedPassword = CryptoJS.AES.decrypt(password , process.env.SECRET_KEY).toString(CryptoJS.enc.Utf8)
+        const bytes = CryptoJS.AES.decrypt(password , process.env.SECRET_KEY)
+        const decryptedPassword = bytes.toString(CryptoJS.enc.Utf8)
+
         let firebaseUser;
         try {
             firebaseUser = await firebaseAdmin.auth().createUser({
