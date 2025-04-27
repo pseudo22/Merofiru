@@ -68,14 +68,6 @@ export default function ChatList() {
                     }
                 }
 
-                const topMatches = otherUserSnap.data()?.topMatches || [];
-                const isTopMatch = topMatches.some((user) => user.userId === userId);
-
-                if (!isTopMatch) {
-                    toastRef.current.addToast('you are not in the top matches on the other side, send a friend request instead?');
-                    setLoading(false);
-                    return;
-                }
             }
 
         }
